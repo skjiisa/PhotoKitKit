@@ -1,3 +1,3 @@
 # PhotoKitKit
 
-A description of this package.
+Swift package for easier access to PhotoKit library

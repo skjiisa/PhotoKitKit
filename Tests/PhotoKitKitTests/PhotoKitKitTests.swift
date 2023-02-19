@@ -6,6 +6,6 @@ final class PhotoKitKitTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
-        XCTAssertEqual(PhotoKitKit().text, "Hello, World!")
+        XCTFail("Tests not written yet")
     }
 }
