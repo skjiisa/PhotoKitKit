@@ -14,16 +14,20 @@ class AlbumController: ObservableObject {
         collections = PHAssetCollection
             .fetchTopLevelUserCollections(with: nil)
             .allObjects()
-            .compactMap(PhotoCollection.init)
+            .map(PhotoCollection.init)
     }
 }
 
 extension PhotoCollection {
-    static func topLevelCollections() -> [PhotoCollection] {
+    static func fetchTopLevelCollections() -> PHFetchResults<PhotoCollection> {
+        .init(PHAssetCollection.fetchTopLevelUserCollections(with: nil))
+    }
+    
+    static func getTopLevelCollections() -> [PhotoCollection] {
         PHAssetCollection
             .fetchTopLevelUserCollections(with: nil)
             .allObjects()
-            .compactMap(PhotoCollection.init)
+            .map(PhotoCollection.init)
     }
 }
 
@@ -33,16 +37,24 @@ extension PHFetchResult {
     }
 }
 
+extension PHObject: Identifiable {
+    public var id: String {
+        localIdentifier
+    }
+}
+
 // MARK: - PhotoCollection
 
-enum PhotoCollection {
+enum PhotoCollection: PHFetchableWrapper {
     case album(Album)
     case folder(Folder)
+    case unknown(PHCollection)
     
     var phCollection: PHCollection {
         switch self {
-        case .album(let album):     return album.phAlbum
-        case .folder(let folder):   return folder.phList
+        case .album(let album):         return album.phAlbum
+        case .folder(let folder):       return folder.phList
+        case .unknown(let collection):  return collection
         }
     }
     
@@ -53,13 +65,16 @@ enum PhotoCollection {
         return folder.collections
     }
     
-    init?(_ phCollection: PHCollection) {
+    init(_ phCollection: PHCollection) {
         if let album = phCollection as? PHAssetCollection {
             self = .album(Album(album))
         } else if let folder = phCollection as? PHCollectionList {
             self = .folder(Folder(folder))
         } else {
-            return nil
+            // PhotoKit should only return PHAssetCollection or PHCollectionList,
+            // but PHCollection could technically have other subclasses, and I'd
+            // rather keep this type-safe than need to force unwrap.
+            self = .unknown(phCollection)
         }
     }
     
@@ -98,22 +113,19 @@ enum PhotoCollection {
 
 extension PhotoCollection: Identifiable {
     var id: String {
-        switch self {
-        case .album(let album):     return album.id
-        case .folder(let folder):   return folder.id
-        }
+        phCollection.id
     }
 }
 
 extension PhotoCollection.Album: Identifiable {
     var id: String {
-        phAlbum.localIdentifier
+        phAlbum.id
     }
 }
 
 extension PhotoCollection.Folder: Identifiable {
     var id: String {
-        phList.localIdentifier
+        phList.id
     }
 }
 
@@ -220,7 +232,7 @@ struct Asset: Hashable, PHFetchableWrapper {
 
 extension Asset: Identifiable {
     var id: String {
-        phAsset.localIdentifier
+        phAsset.id
     }
 }
 
