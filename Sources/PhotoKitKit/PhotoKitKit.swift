@@ -5,6 +5,8 @@ import Photos
 typealias UIImage = NSImage
 #endif
 
+// MARK: - AlbumController
+
 class AlbumController: ObservableObject {
     @Published var collections: [PhotoCollection] = []
     
@@ -30,6 +32,8 @@ extension PHFetchResult {
         objects(at: IndexSet(0..<count))
     }
 }
+
+// MARK: - PhotoCollection
 
 enum PhotoCollection {
     case album(Album)
@@ -113,6 +117,8 @@ extension PhotoCollection.Folder: Identifiable {
     }
 }
 
+// MARK: Album + SwiftUI
+
 extension PhotoCollection.Album {
     var title: String {
         phAlbum.localizedTitle ?? ""
@@ -159,6 +165,8 @@ extension PhotoCollection.Album {
     }
 }
 
+// MARK: - PHFetchResults
+
 // PHAsset, PHCollection, PHAssetCollection, and PHCollectionList
 
 protocol PHFetchable: AnyObject { }
@@ -199,6 +207,8 @@ extension PHFetchResults: RandomAccessCollection {
         Wrapper(fetchResults.object(at: position))
     }
 }
+
+// MARK: - Asset
 
 struct Asset: Hashable, PHFetchableWrapper {
     let phAsset: PHAsset
