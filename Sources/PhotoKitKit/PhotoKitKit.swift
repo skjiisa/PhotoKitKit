@@ -46,7 +46,7 @@ extension PHObject: Identifiable {
 
 // MARK: - PhotoCollection
 
-public enum PhotoCollection: PHFetchableWrapper {
+public enum PhotoCollection: PHFetchableWrapper, Hashable {
     case album(Album)
     case folder(Folder)
     case unknown(PHCollection)
@@ -82,18 +82,18 @@ public enum PhotoCollection: PHFetchableWrapper {
 }
 
 public extension PhotoCollection {
-    struct Album: PHFetchableWrapper {
-        var phAlbum: PHAssetCollection
+    struct Album: PHFetchableWrapper, Hashable {
+        public var phAlbum: PHAssetCollection
         
         public init(_ phAlbum: PHAssetCollection) {
             self.phAlbum = phAlbum
         }
     }
     
-    struct Folder {
-        var phList: PHCollectionList
+    struct Folder: Hashable {
+        public var phList: PHCollectionList
         
-        init(_ phList: PHCollectionList) {
+        public init(_ phList: PHCollectionList) {
             self.phList = phList
         }
     }
