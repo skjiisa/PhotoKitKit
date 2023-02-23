@@ -354,6 +354,9 @@ public extension Asset {
 
 public protocol PhotoLibraryObserver: PHPhotoLibraryChangeObserver, ObservableObject {
     associatedtype Result: PHFetchableWrapper
+    // TODO: Should this be optional?
+    // If it is, then a @StateObject can have it be nil
+    // on initialization and have it set .onAppear.
     var fetchResults: PHFetchResults<Result> { get set }
 }
 
