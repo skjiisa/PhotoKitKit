@@ -2,7 +2,7 @@ import SwiftUI
 import Photos
 
 #if os(macOS)
-typealias UIImage = NSImage
+public typealias UIImage = NSImage
 #endif
 
 // MARK: - AlbumController
@@ -206,7 +206,7 @@ extension Asset: Identifiable {
     }
 }
 
-extension Asset {
+public extension Asset {
     //TODO: Options
     func getAllAlbumsLazily() -> PHFetchResults<PhotoCollection.Album> {
         .init(PHAssetCollection.fetchAssetCollectionsContaining(phAsset, with: .album, options: nil))
