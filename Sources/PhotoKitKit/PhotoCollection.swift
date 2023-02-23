@@ -7,6 +7,14 @@
 
 import Photos
 
+// MARK: - PHAssetFetcher
+
+public protocol PHAssetFetcher {
+    static func fetchAssets(in assetCollection: PHAssetCollection, options: PHFetchOptions?) -> PHFetchResult<PHAsset>
+}
+
+extension PHAsset: PHAssetFetcher { }
+
 // MARK: - PhotoCollection
 
 public enum PhotoCollection: PHFetchableWrapper, Hashable {
@@ -84,8 +92,8 @@ public extension PhotoCollection.Album {
         fetchAssets().fetchResults.contains(asset.phAsset)
     }
     
-    func fetchAssets() -> PHFetchResults<Asset> {
-        .init(PHAsset.fetchAssets(in: phAlbum, options: nil))
+    func fetchAssets(fetcher: PHAssetFetcher.Type = PHAsset.self) -> PHFetchResults<Asset> {
+        .init(fetcher.fetchAssets(in: phAlbum, options: nil))
     }
 }
 
