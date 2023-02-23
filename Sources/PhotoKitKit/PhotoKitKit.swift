@@ -3,15 +3,15 @@ import SwiftUI
 import Combine
 
 #if os(macOS)
-typealias UIImage = NSImage
+public typealias UIImage = NSImage
 #endif
 
 // MARK: - AlbumController
 
-class AlbumController: ObservableObject {
-    @Published var collections: [PhotoCollection] = []
+public class AlbumController: ObservableObject {
+    @Published public var collections: [PhotoCollection] = []
     
-    func loadAllAlbums() {
+    public func loadAllAlbums() {
         collections = PHAssetCollection
             .fetchTopLevelUserCollections(with: nil)
             .allObjects()
@@ -19,7 +19,7 @@ class AlbumController: ObservableObject {
     }
 }
 
-extension PhotoCollection {
+public extension PhotoCollection {
     static func fetchTopLevelCollections() -> PHFetchResults<PhotoCollection> {
         .init(PHAssetCollection.fetchTopLevelUserCollections(with: nil))
     }
@@ -46,12 +46,12 @@ extension PHObject: Identifiable {
 
 // MARK: - PhotoCollection
 
-enum PhotoCollection: PHFetchableWrapper {
+public enum PhotoCollection: PHFetchableWrapper {
     case album(Album)
     case folder(Folder)
     case unknown(PHCollection)
     
-    var phCollection: PHCollection {
+    public var phCollection: PHCollection {
         switch self {
         case .album(let album):         return album.phAlbum
         case .folder(let folder):       return folder.phList
@@ -60,14 +60,14 @@ enum PhotoCollection: PHFetchableWrapper {
     }
     
     // TODO: Make this return PHFetchResults<PhotoCollection> instead?
-    var children: [PhotoCollection]? {
+    public var children: [PhotoCollection]? {
         guard case .folder(let folder) = self else {
             return nil
         }
         return folder.getCollections()
     }
     
-    init(_ phCollection: PHCollection) {
+    public init(_ phCollection: PHCollection) {
         if let album = phCollection as? PHAssetCollection {
             self = .album(Album(album))
         } else if let folder = phCollection as? PHCollectionList {
@@ -79,11 +79,13 @@ enum PhotoCollection: PHFetchableWrapper {
             self = .unknown(phCollection)
         }
     }
-    
+}
+
+public extension PhotoCollection {
     struct Album: PHFetchableWrapper {
         var phAlbum: PHAssetCollection
         
-        init(_ phAlbum: PHAssetCollection) {
+        public init(_ phAlbum: PHAssetCollection) {
             self.phAlbum = phAlbum
         }
     }
@@ -98,26 +100,26 @@ enum PhotoCollection: PHFetchableWrapper {
 }
 
 extension PhotoCollection: Identifiable {
-    var id: String {
+    public var id: String {
         phCollection.id
     }
 }
 
 extension PhotoCollection.Album: Identifiable {
-    var id: String {
+    public var id: String {
         phAlbum.id
     }
 }
 
 extension PhotoCollection.Folder: Identifiable {
-    var id: String {
+    public var id: String {
         phList.id
     }
 }
 
 // MARK: Album + Convenience
 
-extension PhotoCollection.Album {
+public extension PhotoCollection.Album {
     var title: String {
         phAlbum.localizedTitle ?? ""
     }
@@ -133,7 +135,7 @@ extension PhotoCollection.Album {
 
 // MARK: Folder + Convenience
 
-extension PhotoCollection.Folder {
+public extension PhotoCollection.Folder {
     func getCollections() -> [PhotoCollection] {
         PHCollection
             .fetchCollections(in: phList, options: nil)
@@ -148,12 +150,12 @@ extension PhotoCollection.Folder {
 
 // MARK: - PHFetchResults
 
-protocol PHFetchableWrapper {
+public protocol PHFetchableWrapper {
     associatedtype Wrapped: PHObject
     init(_: Wrapped)
 }
 
-struct PHFetchResults<Wrapper: PHFetchableWrapper>: Hashable {
+public struct PHFetchResults<Wrapper: PHFetchableWrapper>: Hashable {
     typealias FetchResults = PHFetchResult<Wrapper.Wrapped>
     var fetchResults: FetchResults
     
@@ -163,19 +165,19 @@ struct PHFetchResults<Wrapper: PHFetchableWrapper>: Hashable {
 }
 
 extension PHFetchResults: RandomAccessCollection {
-    var startIndex: Int {
+    public var startIndex: Int {
         0
     }
     
-    var endIndex: Int {
+    public var endIndex: Int {
         fetchResults.count
     }
     
-    func index(after i: Int) -> Int {
+    public func index(after i: Int) -> Int {
         i + 1
     }
     
-    subscript(position: Int) -> Wrapper {
+    public subscript(position: Int) -> Wrapper {
         // PHFetchResults is a class and I believe it has its own cache, so
         // I don't need to worry about caching stuff in AssetResults itself
         Wrapper(fetchResults.object(at: position))
@@ -184,21 +186,21 @@ extension PHFetchResults: RandomAccessCollection {
 
 // MARK: - Asset
 
-struct Asset: Hashable, PHFetchableWrapper {
-    let phAsset: PHAsset
+public struct Asset: Hashable, PHFetchableWrapper {
+    public let phAsset: PHAsset
     
-    init(_ phAsset: PHAsset) {
+    public init(_ phAsset: PHAsset) {
         self.phAsset = phAsset
     }
 }
 
 extension Asset: Identifiable {
-    var id: String {
+    public var id: String {
         phAsset.id
     }
 }
 
-extension Asset {
+public extension Asset {
     //TODO: Options
     func getAllAlbumsLazily() -> PHFetchResults<PhotoCollection.Album> {
         .init(PHAssetCollection.fetchAssetCollectionsContaining(phAsset, with: .album, options: nil))
