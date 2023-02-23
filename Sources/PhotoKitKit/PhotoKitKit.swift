@@ -59,12 +59,18 @@ public enum PhotoCollection: PHFetchableWrapper, Hashable {
         }
     }
     
-    // TODO: Make this return PHFetchResults<PhotoCollection> instead?
     public var children: [PhotoCollection]? {
         guard case .folder(let folder) = self else {
             return nil
         }
         return folder.getCollections()
+    }
+    
+    public var lazyChildren: PHFetchResults<PhotoCollection>? {
+        guard case .folder(let folder) = self else {
+            return nil
+        }
+        return folder.fetchCollections()
     }
     
     public init(_ phCollection: PHCollection) {
@@ -136,6 +142,10 @@ public extension PhotoCollection.Album {
 // MARK: Folder + Convenience
 
 public extension PhotoCollection.Folder {
+    var title: String {
+        phList.localizedTitle ?? ""
+    }
+    
     func getCollections() -> [PhotoCollection] {
         PHCollection
             .fetchCollections(in: phList, options: nil)
