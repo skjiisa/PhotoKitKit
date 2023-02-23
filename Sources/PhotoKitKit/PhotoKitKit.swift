@@ -6,31 +6,7 @@ import Combine
 public typealias UIImage = NSImage
 #endif
 
-// MARK: - AlbumController
-
-public class AlbumController: ObservableObject {
-    @Published public var collections: [PhotoCollection] = []
-    
-    public func loadAllAlbums() {
-        collections = PHAssetCollection
-            .fetchTopLevelUserCollections(with: nil)
-            .allObjects()
-            .map(PhotoCollection.init)
-    }
-}
-
-public extension PhotoCollection {
-    static func fetchTopLevelCollections() -> PHFetchResults<PhotoCollection> {
-        .init(PHAssetCollection.fetchTopLevelUserCollections(with: nil))
-    }
-    
-    static func getTopLevelCollections() -> [PhotoCollection] {
-        PHAssetCollection
-            .fetchTopLevelUserCollections(with: nil)
-            .allObjects()
-            .map(PhotoCollection.init)
-    }
-}
+// MARK: - PhotoKit Extensions
 
 extension PHFetchResult {
     @objc func allObjects() -> [ObjectType] {
@@ -158,6 +134,21 @@ public extension PhotoCollection.Folder {
     }
 }
 
+// MARK: Static
+
+public extension PhotoCollection {
+    static func fetchTopLevelCollections() -> PHFetchResults<PhotoCollection> {
+        .init(PHAssetCollection.fetchTopLevelUserCollections(with: nil))
+    }
+    
+    static func getTopLevelCollections() -> [PhotoCollection] {
+        PHAssetCollection
+            .fetchTopLevelUserCollections(with: nil)
+            .allObjects()
+            .map(PhotoCollection.init)
+    }
+}
+
 // MARK: - PHFetchResults
 
 public protocol PHFetchableWrapper {
@@ -210,15 +201,19 @@ extension Asset: Identifiable {
     }
 }
 
+// MARK: Asset + Convenience
+
 public extension Asset {
     //TODO: Options
-    func getAllAlbumsLazily() -> PHFetchResults<PhotoCollection.Album> {
+    func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album> {
         .init(PHAssetCollection.fetchAssetCollectionsContaining(phAsset, with: .album, options: nil))
     }
     
     func getAllAlbums() -> [PhotoCollection.Album] {
-        let fetchResults = PHAssetCollection.fetchAssetCollectionsContaining(phAsset, with: .album, options: nil)
-        return fetchResults.objects(at: IndexSet(0..<fetchResults.count)).map(PhotoCollection.Album.init)
+        PHAssetCollection
+            .fetchAssetCollectionsContaining(phAsset, with: .album, options: nil)
+            .allObjects()
+            .map(PhotoCollection.Album.init)
     }
     
     enum PreviewInfo: Hashable {
@@ -367,6 +362,7 @@ public protocol PhotoLibraryObserver: PHPhotoLibraryChangeObserver, ObservableOb
     // TODO: Should this be optional?
     // If it is, then a @StateObject can have it be nil
     // on initialization and have it set .onAppear.
+    // Could also have two different protocols.
     var fetchResults: PHFetchResults<Result> { get set }
 }
 
