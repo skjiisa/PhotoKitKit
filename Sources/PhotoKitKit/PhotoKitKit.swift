@@ -352,12 +352,12 @@ public extension Asset {
     }
 }
 
-protocol PhotoLibraryObserver: PHPhotoLibraryChangeObserver, ObservableObject {
+public protocol PhotoLibraryObserver: PHPhotoLibraryChangeObserver, ObservableObject {
     associatedtype Result: PHFetchableWrapper
     var fetchResults: PHFetchResults<Result> { get set }
 }
 
-extension PhotoLibraryObserver where Self.ObjectWillChangePublisher == ObservableObjectPublisher {
+public extension PhotoLibraryObserver where Self.ObjectWillChangePublisher == ObservableObjectPublisher {
     func registerPhotoObservation() {
         PHPhotoLibrary.shared().register(self)
     }
