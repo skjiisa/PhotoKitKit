@@ -362,9 +362,9 @@ public extension PhotoLibraryObserver where Self.ObjectWillChangePublisher == Ob
         PHPhotoLibrary.shared().register(self)
     }
     
-    func photoLibraryDidChange(_ changeInstance: PHChange) {
+    func process(change: PHChange) {
         let oldResults = self.fetchResults.fetchResults
-        guard let newResults = changeInstance
+        guard let newResults = change
             .changeDetails(for: oldResults)?
             .fetchResultAfterChanges else { return }
         DispatchQueue.main.async {
