@@ -1,5 +1,6 @@
-import SwiftUI
 import Photos
+import SwiftUI
+import Combine
 
 #if os(macOS)
 typealias UIImage = NSImage
@@ -147,15 +148,8 @@ extension PhotoCollection.Folder {
 
 // MARK: - PHFetchResults
 
-// PHAsset, PHCollection, PHAssetCollection, and PHCollectionList
-
-protocol PHFetchable: AnyObject { }
-extension PHAsset: PHFetchable { }
-extension PHCollection: PHFetchable { }
-// PHAssetCollection and PHCollectionList subclass PHCollection
-
 protocol PHFetchableWrapper {
-    associatedtype Wrapped: PHFetchable
+    associatedtype Wrapped: PHObject
     init(_: Wrapped)
 }
 
@@ -353,5 +347,29 @@ extension Asset {
     
     func unfavorite() async throws {
         try await editFavoriteState(isFavorite: false)
+    }
+}
+
+protocol PhotoLibraryObserver: PHPhotoLibraryChangeObserver, ObservableObject {
+    associatedtype Result: PHFetchableWrapper
+    var fetchResults: PHFetchResults<Result> { get set }
+}
+
+extension PhotoLibraryObserver where Self.ObjectWillChangePublisher == ObservableObjectPublisher {
+    func registerPhotoObservation() {
+        PHPhotoLibrary.shared().register(self)
+    }
+    
+    func photoLibraryDidChange(_ changeInstance: PHChange) {
+        let oldResults = self.fetchResults.fetchResults
+        guard let newResults = changeInstance
+            .changeDetails(for: oldResults)?
+            .fetchResultAfterChanges else { return }
+        DispatchQueue.main.async {
+            withAnimation {
+                self.objectWillChange.send()
+                self.fetchResults.fetchResults = newResults
+            }
+        }
     }
 }
