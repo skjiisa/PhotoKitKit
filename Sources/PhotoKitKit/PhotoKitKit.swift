@@ -58,11 +58,12 @@ enum PhotoCollection: PHFetchableWrapper {
         }
     }
     
+    // TODO: Make this return PHFetchResults<PhotoCollection> instead?
     var children: [PhotoCollection]? {
         guard case .folder(let folder) = self else {
             return nil
         }
-        return folder.collections
+        return folder.getCollections()
     }
     
     init(_ phCollection: PHCollection) {
@@ -81,32 +82,16 @@ enum PhotoCollection: PHFetchableWrapper {
     struct Album: PHFetchableWrapper {
         var phAlbum: PHAssetCollection
         
-        /// A lazy loading list of PHAssets in the album.
-        /// This property conforms to RandomAccessCollection, so it can be accessed
-        /// like an array, but it is important to note that it is performance heavy
-        /// to load a large number of assets from, so it is not recommended to be
-        /// used in something like an SwiftUI ForEach.
-        var performanceHeavyAssetList: PHFetchResults<Asset>
-        
         init(_ phAlbum: PHAssetCollection) {
             self.phAlbum = phAlbum
-            let fetchResults = PHAsset.fetchAssets(in: phAlbum, options: nil)
-            self.performanceHeavyAssetList = PHFetchResults<Asset>(fetchResults)
         }
     }
     
     struct Folder {
         var phList: PHCollectionList
         
-        //let albumsList: PHFetchResults<Album>
-        let collections: [PhotoCollection]
-        
         init(_ phList: PHCollectionList) {
             self.phList = phList
-            self.collections = PHCollection
-                .fetchCollections(in: phList, options: nil)
-                .allObjects()
-                .compactMap(PhotoCollection.init)
         }
     }
 }
@@ -129,7 +114,7 @@ extension PhotoCollection.Folder: Identifiable {
     }
 }
 
-// MARK: Album + SwiftUI
+// MARK: Album + Convenience
 
 extension PhotoCollection.Album {
     var title: String {
@@ -137,43 +122,26 @@ extension PhotoCollection.Album {
     }
     
     func contains(_ asset: Asset) -> Bool {
-        performanceHeavyAssetList.fetchResults.contains(asset.phAsset)
+        fetchAssets().fetchResults.contains(asset.phAsset)
     }
     
-    func list<C: View>(content: @escaping (Asset) -> C) -> some View {
-        List(performanceHeavyAssetList, id: \.self) { asset in
-            content(asset)
-        }
+    func fetchAssets() -> PHFetchResults<Asset> {
+        .init(PHAsset.fetchAssets(in: phAlbum, options: nil))
+    }
+}
+
+// MARK: Folder + Convenience
+
+extension PhotoCollection.Folder {
+    func getCollections() -> [PhotoCollection] {
+        PHCollection
+            .fetchCollections(in: phList, options: nil)
+            .allObjects()
+            .compactMap(PhotoCollection.init)
     }
     
-    func lazyVStack<C: View>(content: @escaping (Asset) -> C) -> some View {
-        LazyVStack {
-            ForEach(performanceHeavyAssetList, id: \.self) { asset in
-                content(asset)
-            }
-        }
-    }
-    
-    func lazyHStack<C: View>(content: @escaping (Asset) -> C) -> some View {
-        LazyHStack {
-            ForEach(performanceHeavyAssetList, id: \.self) { asset in
-                content(asset)
-            }
-        }
-    }
-    
-    func lazyVGrid<C: View>(
-        columns: [GridItem],
-        alignment: HorizontalAlignment = .center,
-        spacing: CGFloat? = nil,
-        pinnedViews: PinnedScrollableViews = .init(),
-        content: @escaping (Asset) -> C
-    ) -> some View {
-        LazyVGrid(columns: columns, alignment: alignment, spacing: spacing, pinnedViews: pinnedViews) {
-            ForEach(performanceHeavyAssetList, id: \.self) { asset in
-                content(asset)
-            }
-        }
+    func fetchCollections() -> PHFetchResults<PhotoCollection> {
+        .init(PHCollection.fetchCollections(in: phList, options: nil))
     }
 }
 
