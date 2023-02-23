@@ -1,189 +1,18 @@
-import Photos
-import SwiftUI
-import Combine
+//
+//  Asset.swift
+//  PhotoKitKit
+//
+//  Created by Elaine Lyons on 2/22/23.
+//
 
-#if os(macOS)
+import Photos
+
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
 public typealias UIImage = NSImage
 #endif
-
-// MARK: - PhotoKit Extensions
-
-extension PHFetchResult {
-    @objc func allObjects() -> [ObjectType] {
-        objects(at: IndexSet(0..<count))
-    }
-}
-
-extension PHObject: Identifiable {
-    public var id: String {
-        localIdentifier
-    }
-}
-
-// MARK: - PhotoCollection
-
-public enum PhotoCollection: PHFetchableWrapper, Hashable {
-    case album(Album)
-    case folder(Folder)
-    case unknown(PHCollection)
-    
-    public var phCollection: PHCollection {
-        switch self {
-        case .album(let album):         return album.phAlbum
-        case .folder(let folder):       return folder.phList
-        case .unknown(let collection):  return collection
-        }
-    }
-    
-    public var children: [PhotoCollection]? {
-        guard case .folder(let folder) = self else {
-            return nil
-        }
-        return folder.getCollections()
-    }
-    
-    public var lazyChildren: PHFetchResults<PhotoCollection>? {
-        guard case .folder(let folder) = self else {
-            return nil
-        }
-        return folder.fetchCollections()
-    }
-    
-    public init(_ phCollection: PHCollection) {
-        if let album = phCollection as? PHAssetCollection {
-            self = .album(Album(album))
-        } else if let folder = phCollection as? PHCollectionList {
-            self = .folder(Folder(folder))
-        } else {
-            // PhotoKit should only return PHAssetCollection or PHCollectionList,
-            // but PHCollection could technically have other subclasses, and I'd
-            // rather keep this type-safe than need to force unwrap.
-            self = .unknown(phCollection)
-        }
-    }
-}
-
-public extension PhotoCollection {
-    struct Album: PHFetchableWrapper, Hashable {
-        public var phAlbum: PHAssetCollection
-        
-        public init(_ phAlbum: PHAssetCollection) {
-            self.phAlbum = phAlbum
-        }
-    }
-    
-    struct Folder: Hashable {
-        public var phList: PHCollectionList
-        
-        public init(_ phList: PHCollectionList) {
-            self.phList = phList
-        }
-    }
-}
-
-extension PhotoCollection: Identifiable {
-    public var id: String {
-        phCollection.id
-    }
-}
-
-extension PhotoCollection.Album: Identifiable {
-    public var id: String {
-        phAlbum.id
-    }
-}
-
-extension PhotoCollection.Folder: Identifiable {
-    public var id: String {
-        phList.id
-    }
-}
-
-// MARK: Album + Convenience
-
-public extension PhotoCollection.Album {
-    var title: String {
-        phAlbum.localizedTitle ?? ""
-    }
-    
-    func contains(_ asset: Asset) -> Bool {
-        fetchAssets().fetchResults.contains(asset.phAsset)
-    }
-    
-    func fetchAssets() -> PHFetchResults<Asset> {
-        .init(PHAsset.fetchAssets(in: phAlbum, options: nil))
-    }
-}
-
-// MARK: Folder + Convenience
-
-public extension PhotoCollection.Folder {
-    var title: String {
-        phList.localizedTitle ?? ""
-    }
-    
-    func getCollections() -> [PhotoCollection] {
-        PHCollection
-            .fetchCollections(in: phList, options: nil)
-            .allObjects()
-            .compactMap(PhotoCollection.init)
-    }
-    
-    func fetchCollections() -> PHFetchResults<PhotoCollection> {
-        .init(PHCollection.fetchCollections(in: phList, options: nil))
-    }
-}
-
-// MARK: Static
-
-public extension PhotoCollection {
-    static func fetchTopLevelCollections() -> PHFetchResults<PhotoCollection> {
-        .init(PHAssetCollection.fetchTopLevelUserCollections(with: nil))
-    }
-    
-    static func getTopLevelCollections() -> [PhotoCollection] {
-        PHAssetCollection
-            .fetchTopLevelUserCollections(with: nil)
-            .allObjects()
-            .map(PhotoCollection.init)
-    }
-}
-
-// MARK: - PHFetchResults
-
-public protocol PHFetchableWrapper {
-    associatedtype Wrapped: PHObject
-    init(_: Wrapped)
-}
-
-public struct PHFetchResults<Wrapper: PHFetchableWrapper>: Hashable {
-    typealias FetchResults = PHFetchResult<Wrapper.Wrapped>
-    var fetchResults: FetchResults
-    
-    init(_ fetchResults: FetchResults) {
-        self.fetchResults = fetchResults
-    }
-}
-
-extension PHFetchResults: RandomAccessCollection {
-    public var startIndex: Int {
-        0
-    }
-    
-    public var endIndex: Int {
-        fetchResults.count
-    }
-    
-    public func index(after i: Int) -> Int {
-        i + 1
-    }
-    
-    public subscript(position: Int) -> Wrapper {
-        // PHFetchResults is a class and I believe it has its own cache, so
-        // I don't need to worry about caching stuff in AssetResults itself
-        Wrapper(fetchResults.object(at: position))
-    }
-}
 
 // MARK: - Asset
 
@@ -195,15 +24,20 @@ public struct Asset: Hashable, PHFetchableWrapper {
     }
 }
 
+// MARK: - Identifiable
+
 extension Asset: Identifiable {
     public var id: String {
         phAsset.id
     }
 }
 
-// MARK: Asset + Convenience
+// MARK: - Convenience
 
 public extension Asset {
+    
+    // MARK: Albums
+    
     //TODO: Options
     func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album> {
         .init(PHAssetCollection.fetchAssetCollectionsContaining(phAsset, with: .album, options: nil))
@@ -222,6 +56,8 @@ public extension Asset {
         case requestID(Int)
         case canceled
     }
+    
+    // MARK: Image Data
     
     func getFullSizePreviewImage(
         contentMode: PHImageContentMode,
@@ -309,6 +145,8 @@ public extension Asset {
         case unknownError
     }
     
+    // MARK: Favorites
+    
     var isFavorite: Bool {
         get {
             phAsset.isFavorite
@@ -354,33 +192,5 @@ public extension Asset {
     
     func unfavorite() async throws {
         try await editFavoriteState(isFavorite: false)
-    }
-}
-
-public protocol PhotoLibraryObserver: PHPhotoLibraryChangeObserver, ObservableObject {
-    associatedtype Result: PHFetchableWrapper
-    // TODO: Should this be optional?
-    // If it is, then a @StateObject can have it be nil
-    // on initialization and have it set .onAppear.
-    // Could also have two different protocols.
-    var fetchResults: PHFetchResults<Result> { get set }
-}
-
-public extension PhotoLibraryObserver where Self.ObjectWillChangePublisher == ObservableObjectPublisher {
-    func registerPhotoObservation() {
-        PHPhotoLibrary.shared().register(self)
-    }
-    
-    func process(change: PHChange) {
-        let oldResults = self.fetchResults.fetchResults
-        guard let newResults = change
-            .changeDetails(for: oldResults)?
-            .fetchResultAfterChanges else { return }
-        DispatchQueue.main.async {
-            withAnimation {
-                self.objectWillChange.send()
-                self.fetchResults.fetchResults = newResults
-            }
-        }
     }
 }
