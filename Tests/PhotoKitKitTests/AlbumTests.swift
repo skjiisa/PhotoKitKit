@@ -14,6 +14,7 @@ final class AlbumTests: XCTestCase {
     // MARK: Type Aliases
     
     typealias SUT = PhotoCollection.Album
+    typealias MockAlbum = MockPHAssetCollection
     typealias AssetFetcher = MockPHAssetFetcher
     typealias AssetFetchResults = MockAssetFetchResult
     
@@ -31,10 +32,10 @@ final class AlbumTests: XCTestCase {
         SUT.assetFetcher = PHAsset.self
     }
     
-    // MARK: Convenience
+    // MARK: Title
 
     func testTitle() {
-        let mockAssetCollection = MockPHAssetCollection()
+        let mockAssetCollection = MockAlbum()
         let expectedTitle = UUID().uuidString
         mockAssetCollection._localizedTitle = expectedTitle
         
@@ -43,13 +44,15 @@ final class AlbumTests: XCTestCase {
     }
     
     func testTitleNilLocalizedTitle() {
-        let mockAssetCollection = MockPHAssetCollection()
+        let mockAssetCollection = MockAlbum()
         let expectedTitle: String? = nil
         mockAssetCollection._localizedTitle = expectedTitle
         
         let sut = SUT(mockAssetCollection)
         XCTAssertEqual(sut.title, "")
     }
+    
+    // MARK: Contains
     
     func testContains() {
         let mockAsset = Asset(PHAsset())
@@ -75,14 +78,25 @@ final class AlbumTests: XCTestCase {
         XCTAssertIdentical(AssetFetchResults._containsObject, mockAsset.phAsset)
     }
     
+    // MARK: Fetch Assets
+    
     func testFetchAssets() {
         let album = PHAssetCollection()
-        let sut = PhotoCollection.Album(album)
+        let sut = SUT(album)
         
         let result = sut.fetchAssets()
-        XCTAssertIdentical(result.fetchResults, MockPHAssetFetcher._fetchAssetsReturn)
-        XCTAssertIdentical(AssetFetcher._fetchAssetsAssetCollection, album)
+        XCTAssertIdentical(result.fetchResults, AssetFetcher._fetchAssetsReturn)
+        XCTAssertIdentical(album, AssetFetcher._fetchAssetsAssetCollection)
         // TODO: Test options once those are in
+        XCTAssertNil(AssetFetcher._fetchAssetsOptions)
+    }
+    
+    // MARK: Identifiable
+    
+    func testID() {
+        let mockAlbum = MockAlbum()
+        let sut = SUT(mockAlbum)
+        XCTAssertEqual(mockAlbum.localIdentifier, sut.id)
     }
 
 }

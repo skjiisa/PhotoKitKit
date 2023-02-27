@@ -7,13 +7,19 @@
 
 import Photos
 
-// MARK: - PHAssetFetcher
+// MARK: - Dependencies
 
 protocol PHAssetFetcher {
     static func fetchAssets(in assetCollection: PHAssetCollection, options: PHFetchOptions?) -> PHFetchResult<PHAsset>
 }
 
 extension PHAsset: PHAssetFetcher { }
+
+protocol PHCollectionFetcher {
+    static func fetchCollections(in collectionList: PHCollectionList, options: PHFetchOptions?) -> PHFetchResult<PHCollection>
+}
+
+extension PHCollection: PHCollectionFetcher { }
 
 // MARK: - PhotoCollection
 
@@ -101,20 +107,22 @@ extension PhotoCollection.Album {
 
 // MARK: Folder + Convenience
 
-public extension PhotoCollection.Folder {
-    var title: String {
+extension PhotoCollection.Folder {
+    static var collectionFetcher: PHCollectionFetcher.Type = PHCollection.self
+    
+    public var title: String {
         phList.localizedTitle ?? ""
     }
     
-    func getCollections() -> [PhotoCollection] {
-        PHCollection
+    public func getCollections() -> [PhotoCollection] {
+        Self.collectionFetcher
             .fetchCollections(in: phList, options: nil)
             .allObjects()
             .compactMap(PhotoCollection.init)
     }
     
-    func fetchCollections() -> PHFetchResults<PhotoCollection> {
-        .init(PHCollection.fetchCollections(in: phList, options: nil))
+    public func fetchCollections() -> PHFetchResults<PhotoCollection> {
+        .init(Self.collectionFetcher.fetchCollections(in: phList, options: nil))
     }
 }
 

@@ -1,12 +1,14 @@
 //
-//  File.swift
-//  
+//  MockPHAssetFetcher.swift
+//  PhotoKitKitTests
 //
 //  Created by Elaine Lyons on 2/22/23.
 //
 
 import Photos
 @testable import PhotoKitKit
+
+// MARK: - MockAssetFetchResult
 
 class MockAssetFetchResult: PHFetchResult<PHAsset> {
     static var _containsObject: PHAsset?
@@ -21,6 +23,8 @@ class MockAssetFetchResult: PHFetchResult<PHAsset> {
         _contains = false
     }
 }
+
+// MARK: - MockPHAssetFetcher
 
 enum MockPHAssetFetcher: PHAssetFetcher {
     static var _fetchAssetsAssetCollection: PHAssetCollection?
