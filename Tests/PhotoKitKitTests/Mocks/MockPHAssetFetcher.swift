@@ -29,18 +29,16 @@ class MockAssetFetchResult: PHFetchResult<PHAsset> {
 enum MockPHAssetFetcher: PHAssetFetcher {
     static var _fetchAssetsAssetCollection: PHAssetCollection?
     static var _fetchAssetsOptions: PHFetchOptions?
-    static var _fetchAssetsReturn: PHFetchResult<PHAsset>?
+    static var _fetchAssetsReturn: PHFetchResult<PHAsset> = MockAssetFetchResult()
     static func fetchAssets(in assetCollection: PHAssetCollection, options: PHFetchOptions?) -> PHFetchResult<PHAsset> {
         _fetchAssetsAssetCollection = assetCollection
         _fetchAssetsOptions = options
-        let result = MockAssetFetchResult()
-        _fetchAssetsReturn = result
-        return result
+        return _fetchAssetsReturn
     }
     
     static func reset() {
         _fetchAssetsAssetCollection = nil
         _fetchAssetsOptions = nil
-        _fetchAssetsReturn = nil
+        _fetchAssetsReturn = MockAssetFetchResult()
     }
 }

@@ -84,8 +84,8 @@ final class AlbumTests: XCTestCase {
         let album = PHAssetCollection()
         let sut = SUT(album)
         
-        let result = sut.fetchAssets()
-        XCTAssertIdentical(result.fetchResults, AssetFetcher._fetchAssetsReturn)
+        let results = sut.fetchAssets()
+        XCTAssertIdentical(results.fetchResults, AssetFetcher._fetchAssetsReturn)
         XCTAssertIdentical(album, AssetFetcher._fetchAssetsAssetCollection)
         // TODO: Test options once those are in
         XCTAssertNil(AssetFetcher._fetchAssetsOptions)

@@ -17,16 +17,16 @@ class MockCollectionFetchResult: PHFetchResult<PHCollection> {
     }
     
     static var _objectsAtIndexes: IndexSet?
-    static var _objcets = [PHCollection]()
+    static var _objects = [PHCollection]()
     override func objects(at indexes: IndexSet) -> [PHCollection] {
         Self._objectsAtIndexes = indexes
-        return Self._objcets
+        return Self._objects
     }
     
     static func reset() {
         _count = 0
         _objectsAtIndexes = nil
-        _objcets.removeAll()
+        _objects.removeAll()
     }
 }
 
@@ -35,18 +35,26 @@ class MockCollectionFetchResult: PHFetchResult<PHCollection> {
 enum MockPHCollectionFetcher: PHCollectionFetcher {
     static var _fetchCollectionsCollectionList: PHCollectionList?
     static var _fetchCollectionsOptions: PHFetchOptions?
-    static var _fetchCollectionsReturn: PHFetchResult<PHCollection>?
+    static var _fetchCollectionsReturn: PHFetchResult<PHCollection> = MockCollectionFetchResult()
     static func fetchCollections(in collectionList: PHCollectionList, options: PHFetchOptions?) -> PHFetchResult<PHCollection> {
         _fetchCollectionsCollectionList = collectionList
         _fetchCollectionsOptions = options
-        let result = MockCollectionFetchResult()
-        _fetchCollectionsReturn = result
-        return result
+        return _fetchCollectionsReturn
+    }
+    
+    static var _fetchTopLevelUserCollectionsOptions: PHFetchOptions?
+    static var _fetchTopLevelUserCollectionsReturn: PHFetchResult<PHCollection> = MockCollectionFetchResult()
+    static func fetchTopLevelUserCollections(with options: PHFetchOptions?) -> PHFetchResult<PHCollection> {
+        _fetchTopLevelUserCollectionsOptions = options
+        return _fetchTopLevelUserCollectionsReturn
     }
     
     static func reset() {
         _fetchCollectionsCollectionList = nil
         _fetchCollectionsOptions = nil
-        _fetchCollectionsReturn = nil
+        _fetchCollectionsReturn = MockCollectionFetchResult()
+        
+        _fetchTopLevelUserCollectionsOptions = nil
+        _fetchTopLevelUserCollectionsReturn = MockCollectionFetchResult()
     }
 }

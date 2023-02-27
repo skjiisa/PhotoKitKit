@@ -52,29 +52,29 @@ final class FolderTests: XCTestCase {
         XCTAssertEqual(sut.title, "")
     }
     
-    // MARK: Get Collections
-    
-    func testGetCollections() {
-        let albums = [PHCollection(), PHCollection(), PHCollection()]
-        CollectionFetchResults._objcets = albums
-        CollectionFetchResults._count = 3
-        
-        let sut = SUT(PHCollectionList())
-        
-        let result = sut.getCollections()
-        (0..<3).forEach { i in XCTAssertIdentical(result[i].phCollection, albums[i]) }
-        XCTAssertEqual(IndexSet(0..<CollectionFetchResults._count), CollectionFetchResults._objectsAtIndexes)
-    }
-    
-    // MARK: Fetch Collections
+    // MARK: Loading Collections
     
     func testFetchCollections() {
         let folder = PHCollectionList()
         let sut = SUT(folder)
         
-        let result = sut.fetchCollections()
-        XCTAssertIdentical(result.fetchResults, CollectionFetcher._fetchCollectionsReturn)
+        let results = sut.fetchCollections()
+        XCTAssertIdentical(results.fetchResults, CollectionFetcher._fetchCollectionsReturn)
         XCTAssertIdentical(folder, CollectionFetcher._fetchCollectionsCollectionList)
+        // TODO: Test options once those are in
+        XCTAssertNil(CollectionFetcher._fetchCollectionsOptions)
+    }
+    
+    func testGetCollections() {
+        let albums = [PHCollection(), PHCollection(), PHCollection()]
+        CollectionFetchResults._objects = albums
+        CollectionFetchResults._count = 3
+        
+        let sut = SUT(PHCollectionList())
+        
+        let results = sut.getCollections()
+        (0..<3).forEach { i in XCTAssertIdentical(results[i].phCollection, albums[i]) }
+        XCTAssertEqual(IndexSet(0..<CollectionFetchResults._count), CollectionFetchResults._objectsAtIndexes)
         // TODO: Test options once those are in
         XCTAssertNil(CollectionFetcher._fetchCollectionsOptions)
     }
