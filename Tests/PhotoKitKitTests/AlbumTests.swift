@@ -14,20 +14,26 @@ final class AlbumTests: XCTestCase {
     // MARK: Type Aliases
     
     typealias SUT = PhotoCollection.Album
+    typealias AssetFetcher = MockPHAssetFetcher
+    typealias AssetFetchResults = MockAssetFetchResult
     
     // MARK: Setup
 
     override func setUpWithError() throws {
-        MockPHAssetFetcher.reset()
+        AssetFetcher.reset()
+        AssetFetchResults.reset()
+        SUT.assetFetcher = AssetFetcher.self
     }
 
     override func tearDownWithError() throws {
-        MockPHAssetFetcher.reset()
+        AssetFetcher.reset()
+        AssetFetchResults.reset()
+        SUT.assetFetcher = PHAsset.self
     }
     
-    // MARK: Album + Convenience
+    // MARK: Convenience
 
-    func testAlbumTitle() {
+    func testTitle() {
         let mockAssetCollection = MockPHAssetCollection()
         let expectedTitle = UUID().uuidString
         mockAssetCollection._localizedTitle = expectedTitle
@@ -36,7 +42,7 @@ final class AlbumTests: XCTestCase {
         XCTAssertEqual(sut.title, expectedTitle)
     }
     
-    func testAlbumTitleNilLocalizedTitle() {
+    func testTitleNilLocalizedTitle() {
         let mockAssetCollection = MockPHAssetCollection()
         let expectedTitle: String? = nil
         mockAssetCollection._localizedTitle = expectedTitle
@@ -45,14 +51,37 @@ final class AlbumTests: XCTestCase {
         XCTAssertEqual(sut.title, "")
     }
     
+    func testContains() {
+        let mockAsset = Asset(PHAsset())
+        
+        let sut = SUT(PHAssetCollection())
+        
+        let expectedResult = true
+        AssetFetchResults._contains = expectedResult
+        let actualResult = sut.contains(mockAsset)
+        XCTAssertEqual(actualResult, expectedResult)
+        XCTAssertIdentical(AssetFetchResults._containsObject, mockAsset.phAsset)
+    }
+    
+    func testDoesNotContain() {
+        let mockAsset = Asset(PHAsset())
+        
+        let sut = SUT(PHAssetCollection())
+        
+        let expectedResult = false
+        AssetFetchResults._contains = expectedResult
+        let actualResult = sut.contains(mockAsset)
+        XCTAssertEqual(actualResult, expectedResult)
+        XCTAssertIdentical(AssetFetchResults._containsObject, mockAsset.phAsset)
+    }
+    
     func testFetchAssets() {
-        let mockAssetFetcher = MockPHAssetFetcher.self
         let album = PHAssetCollection()
         let sut = PhotoCollection.Album(album)
         
-        let result = sut.fetchAssets(fetcher: mockAssetFetcher)
+        let result = sut.fetchAssets()
         XCTAssertIdentical(result.fetchResults, MockPHAssetFetcher._fetchAssetsReturn)
-        XCTAssertIdentical(mockAssetFetcher._fetchAssetsAssetCollection, album)
+        XCTAssertIdentical(AssetFetcher._fetchAssetsAssetCollection, album)
         // TODO: Test options once those are in
     }
 

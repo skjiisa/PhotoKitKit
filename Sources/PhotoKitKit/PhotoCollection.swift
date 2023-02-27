@@ -9,7 +9,7 @@ import Photos
 
 // MARK: - PHAssetFetcher
 
-public protocol PHAssetFetcher {
+protocol PHAssetFetcher {
     static func fetchAssets(in assetCollection: PHAssetCollection, options: PHFetchOptions?) -> PHFetchResult<PHAsset>
 }
 
@@ -83,17 +83,19 @@ public extension PhotoCollection {
 
 // MARK: Album + Convenience
 
-public extension PhotoCollection.Album {
-    var title: String {
+extension PhotoCollection.Album {
+    static var assetFetcher: PHAssetFetcher.Type = PHAsset.self
+    
+    public var title: String {
         phAlbum.localizedTitle ?? ""
     }
     
-    func contains(_ asset: Asset) -> Bool {
+    public func contains(_ asset: Asset) -> Bool {
         fetchAssets().fetchResults.contains(asset.phAsset)
     }
     
-    func fetchAssets(fetcher: PHAssetFetcher.Type = PHAsset.self) -> PHFetchResults<Asset> {
-        .init(fetcher.fetchAssets(in: phAlbum, options: nil))
+    public func fetchAssets() -> PHFetchResults<Asset> {
+        .init(Self.assetFetcher.fetchAssets(in: phAlbum, options: nil))
     }
 }
 
