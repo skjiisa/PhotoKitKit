@@ -13,10 +13,10 @@ final class FolderTests: XCTestCase {
     
     // MARK: Typealiases
     
-    typealias SUT = PhotoCollection.Folder
-    typealias MockFolder = MockPHCollectionList
-    typealias CollectionFetcher = MockPHCollectionFetcher
-    typealias CollectionFetchResults = MockCollectionFetchResult
+    private typealias SUT = PhotoCollection.Folder
+    private typealias MockFolder = MockPHCollectionList
+    private typealias CollectionFetcher = MockPHCollectionFetcher
+    private typealias CollectionFetchResults = MockCollectionFetchResult
     
     // MARK: Setup
 

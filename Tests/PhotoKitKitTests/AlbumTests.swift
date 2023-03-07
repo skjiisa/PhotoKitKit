@@ -13,10 +13,10 @@ final class AlbumTests: XCTestCase {
     
     // MARK: Type Aliases
     
-    typealias SUT = PhotoCollection.Album
-    typealias MockAlbum = MockPHAssetCollection
-    typealias AssetFetcher = MockPHAssetFetcher
-    typealias AssetFetchResults = MockAssetFetchResult
+    private typealias SUT = PhotoCollection.Album
+    private typealias MockAlbum = MockPHAssetCollection
+    private typealias AssetFetcher = MockPHAssetFetcher
+    private typealias AssetFetchResults = MockAssetFetchResult
     
     // MARK: Setup
 

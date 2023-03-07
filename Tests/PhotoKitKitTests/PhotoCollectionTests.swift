@@ -13,11 +13,11 @@ final class PhotoCollectionTests: XCTestCase {
     
     // MARK: Typealiases
     
-    typealias SUT = PhotoCollection
-    typealias Album = PhotoCollection.Album
-    typealias Folder = PhotoCollection.Folder
-    typealias CollectionFetcher = MockPHCollectionFetcher
-    typealias CollectionFetchResults = MockCollectionFetchResult
+    private typealias SUT = PhotoCollection
+    private typealias Album = PhotoCollection.Album
+    private typealias Folder = PhotoCollection.Folder
+    private typealias CollectionFetcher = MockPHCollectionFetcher
+    private typealias CollectionFetchResults = MockCollectionFetchResult
 
     override func setUpWithError() throws {
         CollectionFetcher.reset()
