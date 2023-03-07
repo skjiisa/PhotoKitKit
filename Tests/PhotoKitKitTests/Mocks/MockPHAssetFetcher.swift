@@ -18,6 +18,25 @@ class MockAssetFetchResult: PHFetchResult<PHAsset> {
         return Self._contains
     }
     
+    var _count: Int = 0
+    override var count: Int {
+        _count
+    }
+    
+    var _objectAtIndex: Int?
+    var _objectAtIndexReturn = PHAsset()
+    override func object(at index: Int) -> PHAsset {
+        _objectAtIndex = index
+        return _objectAtIndexReturn
+    }
+    
+    func reset() {
+        _count = 0
+        _objectAtIndex = nil
+        _objectAtIndexReturn = PHAsset()
+        Self.reset()
+    }
+    
     static func reset() {
         _containsObject = nil
         _contains = false
