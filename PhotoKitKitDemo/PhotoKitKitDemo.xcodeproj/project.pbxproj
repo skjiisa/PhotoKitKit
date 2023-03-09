@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D78C742729B9A2500033A2A7 /* AlbumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C742629B9A2500033A2A7 /* AlbumView.swift */; };
+		D78C742929B9A4DD0033A2A7 /* Thumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C742829B9A4DD0033A2A7 /* Thumbnail.swift */; };
 		D79C585329B9986700A7B1F5 /* PhotoKitKitDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C585229B9986700A7B1F5 /* PhotoKitKitDemoApp.swift */; };
 		D79C585529B9986700A7B1F5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C585429B9986700A7B1F5 /* ContentView.swift */; };
 		D79C585729B9986800A7B1F5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D79C585629B9986800A7B1F5 /* Assets.xcassets */; };
@@ -17,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D78C742629B9A2500033A2A7 /* AlbumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumView.swift; sourceTree = "<group>"; };
+		D78C742829B9A4DD0033A2A7 /* Thumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Thumbnail.swift; sourceTree = "<group>"; };
 		D79C584F29B9986700A7B1F5 /* PhotoKitKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoKitKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D79C585229B9986700A7B1F5 /* PhotoKitKitDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoKitKitDemoApp.swift; sourceTree = "<group>"; };
 		D79C585429B9986700A7B1F5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -61,6 +65,8 @@
 				D79C585229B9986700A7B1F5 /* PhotoKitKitDemoApp.swift */,
 				D79C585429B9986700A7B1F5 /* ContentView.swift */,
 				D79C586529B99B4B00A7B1F5 /* AlbumsList.swift */,
+				D78C742629B9A2500033A2A7 /* AlbumView.swift */,
+				D78C742829B9A4DD0033A2A7 /* Thumbnail.swift */,
 				D79C585629B9986800A7B1F5 /* Assets.xcassets */,
 				D79C585829B9986800A7B1F5 /* Preview Content */,
 			);
@@ -154,6 +160,8 @@
 			files = (
 				D79C586629B99B4B00A7B1F5 /* AlbumsList.swift in Sources */,
 				D79C585529B9986700A7B1F5 /* ContentView.swift in Sources */,
+				D78C742729B9A2500033A2A7 /* AlbumView.swift in Sources */,
+				D78C742929B9A4DD0033A2A7 /* Thumbnail.swift in Sources */,
 				D79C585329B9986700A7B1F5 /* PhotoKitKitDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

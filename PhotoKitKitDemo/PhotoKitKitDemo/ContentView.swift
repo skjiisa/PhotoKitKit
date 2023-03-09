@@ -8,6 +8,8 @@
 import SwiftUI
 import Photos
 
+// MARK: - ContentView
+
 struct ContentView: View {
     @State private var showLibrary = false
     
