@@ -13,6 +13,7 @@
 		D79C585A29B9986800A7B1F5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D79C585929B9986800A7B1F5 /* Preview Assets.xcassets */; };
 		D79C586129B9989400A7B1F5 /* PhotoKitKit in Resources */ = {isa = PBXBuildFile; fileRef = D79C586029B9988C00A7B1F5 /* PhotoKitKit */; };
 		D79C586429B9995300A7B1F5 /* PhotoKitKit in Frameworks */ = {isa = PBXBuildFile; productRef = D79C586329B9995300A7B1F5 /* PhotoKitKit */; };
+		D79C586629B99B4B00A7B1F5 /* AlbumsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C586529B99B4B00A7B1F5 /* AlbumsList.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		D79C585629B9986800A7B1F5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D79C585929B9986800A7B1F5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D79C586029B9988C00A7B1F5 /* PhotoKitKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PhotoKitKit; path = ..; sourceTree = "<group>"; };
+		D79C586529B99B4B00A7B1F5 /* AlbumsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsList.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 			children = (
 				D79C585229B9986700A7B1F5 /* PhotoKitKitDemoApp.swift */,
 				D79C585429B9986700A7B1F5 /* ContentView.swift */,
+				D79C586529B99B4B00A7B1F5 /* AlbumsList.swift */,
 				D79C585629B9986800A7B1F5 /* Assets.xcassets */,
 				D79C585829B9986800A7B1F5 /* Preview Content */,
 			);
@@ -149,6 +152,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D79C586629B99B4B00A7B1F5 /* AlbumsList.swift in Sources */,
 				D79C585529B9986700A7B1F5 /* ContentView.swift in Sources */,
 				D79C585329B9986700A7B1F5 /* PhotoKitKitDemoApp.swift in Sources */,
 			);
@@ -281,6 +285,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"PhotoKitKitDemo/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Helps users organizer their photos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -309,6 +314,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"PhotoKitKitDemo/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Helps users organizer their photos";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

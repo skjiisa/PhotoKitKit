@@ -6,17 +6,23 @@
 //
 
 import SwiftUI
-import PhotoKitKit
+import Photos
 
 struct ContentView: View {
+    @State private var showLibrary = false
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationView {
+            if showLibrary {
+                AlbumsList()
+            } else {
+                Text("Permission required")
+            }
         }
-        .padding()
+        .task {
+            let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
+            showLibrary = [.authorized, .limited].contains(status)
+        }
     }
 }
 
