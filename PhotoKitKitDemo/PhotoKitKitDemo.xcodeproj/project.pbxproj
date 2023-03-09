@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D78C742729B9A2500033A2A7 /* AlbumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C742629B9A2500033A2A7 /* AlbumView.swift */; };
 		D78C742929B9A4DD0033A2A7 /* Thumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C742829B9A4DD0033A2A7 /* Thumbnail.swift */; };
+		D78C742C29B9A7F00033A2A7 /* CoalescingOperators in Frameworks */ = {isa = PBXBuildFile; productRef = D78C742B29B9A7F00033A2A7 /* CoalescingOperators */; };
 		D79C585329B9986700A7B1F5 /* PhotoKitKitDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C585229B9986700A7B1F5 /* PhotoKitKitDemoApp.swift */; };
 		D79C585529B9986700A7B1F5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C585429B9986700A7B1F5 /* ContentView.swift */; };
 		D79C585729B9986800A7B1F5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D79C585629B9986800A7B1F5 /* Assets.xcassets */; };
@@ -35,6 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D78C742C29B9A7F00033A2A7 /* CoalescingOperators in Frameworks */,
 				D79C586429B9995300A7B1F5 /* PhotoKitKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -99,6 +101,7 @@
 			name = PhotoKitKitDemo;
 			packageProductDependencies = (
 				D79C586329B9995300A7B1F5 /* PhotoKitKit */,
+				D78C742B29B9A7F00033A2A7 /* CoalescingOperators */,
 			);
 			productName = PhotoKitKitDemo;
 			productReference = D79C584F29B9986700A7B1F5 /* PhotoKitKitDemo.app */;
@@ -130,6 +133,7 @@
 			mainGroup = D79C584629B9986700A7B1F5;
 			packageReferences = (
 				D79C586229B9995300A7B1F5 /* XCRemoteSwiftPackageReference "PhotoKitKit" */,
+				D78C742A29B9A7F00033A2A7 /* XCRemoteSwiftPackageReference "Coalescing-Operators" */,
 			);
 			productRefGroup = D79C585029B9986700A7B1F5 /* Products */;
 			projectDirPath = "";
@@ -365,6 +369,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		D78C742A29B9A7F00033A2A7 /* XCRemoteSwiftPackageReference "Coalescing-Operators" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/skjiisa/Coalescing-Operators.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		D79C586229B9995300A7B1F5 /* XCRemoteSwiftPackageReference "PhotoKitKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/skjiisa/PhotoKitKit.git";
@@ -376,6 +388,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		D78C742B29B9A7F00033A2A7 /* CoalescingOperators */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D78C742A29B9A7F00033A2A7 /* XCRemoteSwiftPackageReference "Coalescing-Operators" */;
+			productName = CoalescingOperators;
+		};
 		D79C586329B9995300A7B1F5 /* PhotoKitKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D79C586229B9995300A7B1F5 /* XCRemoteSwiftPackageReference "PhotoKitKit" */;

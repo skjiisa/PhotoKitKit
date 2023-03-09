@@ -8,6 +8,8 @@
 import SwiftUI
 import Photos
 import PhotoKitKit
+// Check out https://github.com/skjiisa/Coalescing-Operators
+import CoalescingOperators
 
 // MARK: - Albums List
 
@@ -48,12 +50,8 @@ extension AlbumsList {
         }
         
         func viewModel(for album: PhotoCollection.Album) -> AlbumView.ViewModel {
-            guard let viewModel = albumViewModels[album] else {
-                let viewModel = AlbumView.ViewModel(album: album)
-                albumViewModels[album] = viewModel
-                return viewModel
-            }
-            return viewModel
+            // ?= from CoalescingOperators
+            albumViewModels[album] ?= AlbumView.ViewModel(album: album)
         }
     }
 }
