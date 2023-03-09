@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "coalescing-operators",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/skjiisa/Coalescing-Operators.git",
+      "state" : {
+        "revision" : "e6bce97568f4512c7d2ddf33ea4e30b8bdf4b795",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 2
+}

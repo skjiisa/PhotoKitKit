@@ -67,6 +67,7 @@ public extension Asset {
         getPreviewImage(targetSize: PHImageManagerMaximumSize, contentMode: contentMode, options: options, resultHandler: resultHandler)
     }
     
+    // TODO: Create async wrappers for these
     func getPreviewImage(
         targetSize: CGSize,
         contentMode: PHImageContentMode,
