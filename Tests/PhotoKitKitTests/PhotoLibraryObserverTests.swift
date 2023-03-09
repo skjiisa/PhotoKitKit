@@ -28,7 +28,6 @@ final class PhotoLibraryObserverTests: XCTestCase {
     
     private typealias SUT = TestablePhotoLibraryObserver
     private typealias PhotoLibrary = MockPhotoLibrary
-    private typealias Change = MockPHChange
     private typealias ChangeDetails = MockPHAssetFetchResultChangeDetails
     
     // MARK: Setup
