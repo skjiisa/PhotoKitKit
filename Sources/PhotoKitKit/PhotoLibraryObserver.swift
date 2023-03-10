@@ -36,10 +36,6 @@ extension PHChange: PHPhotoChange { }
 
 public protocol PhotoLibraryObserver: PHPhotoLibraryChangeObserver, ObservableObject {
     associatedtype Result: PHFetchableWrapper
-    // TODO: Should this be optional?
-    // If it is, then a @StateObject can have it be nil
-    // on initialization and have it set .onAppear.
-    // Could also have two different protocols.
     var fetchResults: PHFetchResults<Result> { get set }
 }
 
@@ -53,10 +49,38 @@ public extension PhotoLibraryObserver where Self.ObjectWillChangePublisher == Ob
         guard let newResults = change
             .changeDetails(for: oldResults)?
             .fetchResultAfterChanges else { return }
+        
         DispatchQueue.main.async {
             withAnimation {
                 self.objectWillChange.send()
                 self.fetchResults.fetchResults = newResults
+            }
+        }
+    }
+}
+
+public protocol PhotoLibraryObserverOptional: PHPhotoLibraryChangeObserver, ObservableObject {
+    associatedtype Result: PHFetchableWrapper
+    var fetchResults: PHFetchResults<Result>? { get set }
+}
+
+public extension PhotoLibraryObserverOptional where Self.ObjectWillChangePublisher == ObservableObjectPublisher {
+    func registerPhotoObservation() {
+        photoLibrary.register(self)
+    }
+    
+    func process(change: PHPhotoChange) {
+        guard
+            let oldResults = self.fetchResults?.fetchResults,
+            let newResults = change
+                .changeDetails(for: oldResults)?
+                .fetchResultAfterChanges
+        else { return }
+        
+        DispatchQueue.main.async {
+            withAnimation {
+                self.objectWillChange.send()
+                self.fetchResults = .init(newResults)
             }
         }
     }
