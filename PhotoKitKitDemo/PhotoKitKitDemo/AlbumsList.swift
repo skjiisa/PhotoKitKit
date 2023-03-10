@@ -21,7 +21,7 @@ struct AlbumsList: View {
             switch collection {
             case .album(let album):
                 NavigationLink(album.title) {
-                    AlbumView(viewModel: viewModel.viewModel(for: album))
+                    AlbumView(albumDetails: viewModel.viewModel(for: album))
                 }
             default:
                 Text(collection.title)
@@ -36,7 +36,7 @@ struct AlbumsList: View {
 extension AlbumsList {
     class ViewModel: NSObject, PhotoLibraryObserver {
         var fetchResults: PHFetchResults<PhotoCollection>
-        private var albumViewModels = [PhotoCollection.Album: AlbumView.ViewModel]()
+        private var albumViewModels = [PhotoCollection.Album: AlbumDetails]()
         
         override init() {
             self.fetchResults = PhotoCollection.fetchTopLevelCollections()
@@ -49,9 +49,9 @@ extension AlbumsList {
             process(change: changeInstance)
         }
         
-        func viewModel(for album: PhotoCollection.Album) -> AlbumView.ViewModel {
+        func viewModel(for album: PhotoCollection.Album) -> AlbumDetails {
             // ?= from CoalescingOperators
-            albumViewModels[album] ?= AlbumView.ViewModel(album: album)
+            albumViewModels[album] ?= AlbumDetails(album: album)
         }
     }
 }

@@ -12,32 +12,40 @@ import PhotoKitKit
 // MARK: - AlbumView
 
 struct AlbumView: View {
-    @ObservedObject var viewModel: ViewModel
+    
+    @ObservedObject var albumDetails: AlbumDetails
+    
+    @State private var selection: Asset?
     
     var body: some View {
         ScrollView {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3)) {
-                ForEach(viewModel.fetchResults) { asset in
-                    Thumbnail(asset: asset)
+                ForEach(albumDetails.fetchResults) { asset in
+                    Button {
+                        selection = asset
+                    } label: {
+                        Thumbnail(asset: asset)
+                    }
                 }
             }
+        }
+        .sheet(item: $selection) { asset in
+            AssetDetailsView(asset: asset)
         }
     }
 }
 
 // MARK: View Model
 
-extension AlbumView {
-    class ViewModel: NSObject, PhotoLibraryObserver {
-        var fetchResults: PHFetchResults<Asset>
-        
-        init(album: PhotoCollection.Album) {
-            self.fetchResults = album.fetchAssets()
-        }
-        
-        func photoLibraryDidChange(_ changeInstance: PHChange) {
-            process(change: changeInstance)
-        }
+class AlbumDetails: NSObject, PhotoLibraryObserver {
+    var fetchResults: PHFetchResults<Asset>
+    
+    init(album: PhotoCollection.Album) {
+        self.fetchResults = album.fetchAssets()
+    }
+    
+    func photoLibraryDidChange(_ changeInstance: PHChange) {
+        process(change: changeInstance)
     }
 }
 
@@ -45,6 +53,6 @@ extension AlbumView {
 
 struct AlbumView_Previews: PreviewProvider {
     static var previews: some View {
-        AlbumView(viewModel: .init(album: .init(.init())))
+        AlbumView(albumDetails: .init(album: .init(.init())))
     }
 }
