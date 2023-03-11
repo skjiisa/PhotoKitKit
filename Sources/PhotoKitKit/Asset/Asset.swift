@@ -17,6 +17,11 @@ public typealias UIImage = NSImage
 
 public class Asset: NSObject, ObservableObject {
     @Published public var phAsset: PHAsset
+    public lazy var albums: PHFetchResults<PhotoCollection.Album> = {
+        albumsLoaded = true
+        return staticAsset.fetchAllAlbums()
+    }()
+    private var albumsLoaded = false
     
     public var changeAnimation: Animation? = .default
     
@@ -168,22 +173,52 @@ extension Asset: AssetRepresentable {
 
 extension Asset: PHPhotoLibraryChangeObserver {
     public func photoLibraryDidChange(_ changeInstance: PHChange) {
-        guard let newAsset = changeInstance
+        processAsset(change: changeInstance)
+        processAlbums(change: changeInstance)
+    }
+    
+    private func processAsset(change: PHChange) {
+        guard let newAsset = change
             .changeDetails(for: phAsset)?
             .objectAfterChanges else { return }
+        
+        print("Asset processing:", id)
         DispatchQueue.main.async {
-            switch self.changeAnimation {
-            case .default:
-                withAnimation {
-                    self.phAsset = newAsset
-                }
-            case .custom(let animation):
-                withAnimation(animation) {
-                    self.phAsset = newAsset
-                }
-            case .none:
+            self.animate {
                 self.phAsset = newAsset
             }
+        }
+    }
+    
+    private func processAlbums(change: PHChange) {
+        guard
+            albumsLoaded,
+            let newFetchResults = change
+                .changeDetails(for: albums.fetchResults)?
+                .fetchResultAfterChanges
+        else { return }
+        
+        print("Asset albums processing:", id)
+        DispatchQueue.main.async {
+            self.animate {
+                self.objectWillChange.send()
+                self.albums.fetchResults = newFetchResults
+            }
+        }
+    }
+    
+    private func animate(change: () -> Void) {
+        switch self.changeAnimation {
+        case .default:
+            withAnimation {
+                change()
+            }
+        case .custom(let animation):
+            withAnimation(animation) {
+                change()
+            }
+        case .none:
+            change()
         }
     }
 }
