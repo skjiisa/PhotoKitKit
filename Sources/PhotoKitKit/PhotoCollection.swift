@@ -111,11 +111,11 @@ extension PhotoCollection.Album {
         phAlbum.localizedTitle ?? ""
     }
     
-    public func contains(_ asset: Asset) -> Bool {
+    public func contains(_ asset: StaticAsset) -> Bool {
         fetchAssets().fetchResults.contains(asset.phAsset)
     }
     
-    public func fetchAssets() -> PHFetchResults<Asset> {
+    public func fetchAssets() -> PHFetchResults<StaticAsset> {
         .init(Self.assetFetcher.fetchAssets(in: phAlbum, options: nil))
     }
 }

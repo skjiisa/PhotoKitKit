@@ -1,5 +1,5 @@
 //
-//  Asset.swift
+//  StaticAsset.swift
 //  PhotoKitKit
 //
 //  Created by Elaine Lyons on 2/22/23.
@@ -14,9 +14,13 @@ import AppKit
 public typealias UIImage = NSImage
 #endif
 
-// MARK: - Asset
+public protocol AssetRepresentable {
+    func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album>
+}
 
-public struct Asset: Hashable, PHFetchableWrapper {
+// MARK: - StaticAsset
+
+public struct StaticAsset: Hashable, PHFetchableWrapper {
     public let phAsset: PHAsset
     
     public init(_ phAsset: PHAsset) {
@@ -26,7 +30,7 @@ public struct Asset: Hashable, PHFetchableWrapper {
 
 // MARK: - Identifiable
 
-extension Asset: Identifiable {
+extension StaticAsset: Identifiable {
     public var id: String {
         phAsset.id
     }
@@ -34,32 +38,33 @@ extension Asset: Identifiable {
 
 // MARK: - Convenience
 
-public extension Asset {
+extension StaticAsset: AssetRepresentable {
     
     // MARK: Albums
     
     //TODO: Options
-    func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album> {
+    // It seems like this doesn't actually update on its own from photo library change observations?
+    public func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album> {
         .init(PHAssetCollection.fetchAssetCollectionsContaining(phAsset, with: .album, options: nil))
     }
     
-    func getAllAlbums() -> [PhotoCollection.Album] {
+    public func getAllAlbums() -> [PhotoCollection.Album] {
         PHAssetCollection
             .fetchAssetCollectionsContaining(phAsset, with: .album, options: nil)
             .allObjects()
             .map(PhotoCollection.Album.init)
     }
     
-    enum PreviewInfo: Hashable {
+    // MARK: Image Data
+    
+    public enum PreviewInfo: Hashable {
         case cloud
         case thumbnail
         case requestID(Int)
         case canceled
     }
     
-    // MARK: Image Data
-    
-    func getFullSizePreviewImage(
+    public func getFullSizePreviewImage(
         options: PHImageRequestOptions? = nil,
         resultHandler: @escaping (Result<UIImage, Error>, Set<PreviewInfo>) -> Void
     ) {
@@ -67,7 +72,7 @@ public extension Asset {
     }
     
     // TODO: Create async wrappers for these
-    func getPreviewImage(
+    public func getPreviewImage(
         targetSize: CGSize,
         contentMode: PHImageContentMode,
         options: PHImageRequestOptions? = nil,
@@ -105,7 +110,7 @@ public extension Asset {
     }
     
     // TODO: Add something like "ForStorage" at the end to indicate that it's not for turning into an image?
-    func getFullImageData(completion: @escaping (Result<Data, Error>) -> Void) {
+    public func getFullImageData(completion: @escaping (Result<Data, Error>) -> Void) {
         guard let resource = PHAssetResource.assetResources(for: phAsset).first else {
             return completion(.failure(Failure.noResources))
         }
@@ -125,7 +130,7 @@ public extension Asset {
     // it uploads, but I personally have no idea how that could be done
     //
     // Maybe make a silenceable warning with some kind of override function?
-    func getFullImageDataProgressively(completion: @escaping (Result<Data, Error>) -> Void) {
+    public func getFullImageDataProgressively(completion: @escaping (Result<Data, Error>) -> Void) {
         guard let resource = PHAssetResource.assetResources(for: phAsset).first else {
             return completion(.failure(Failure.noResources))
         }
@@ -140,57 +145,12 @@ public extension Asset {
         }
     }
     
-    enum Failure: Error {
+    public enum Failure: Error {
         case noResources
         case unknownError
     }
     
-    // MARK: Favorites
-    
-    var isFavorite: Bool {
-        get {
-            phAsset.isFavorite
-        }
-        set {
-            editFavoriteState(isFavorite: newValue)
-        }
-    }
-    
-    func editFavoriteState(isFavorite: Bool, completion: ((Result<Void, Error>) -> Void)? = nil) {
-        guard isFavorite != phAsset.isFavorite else { return completion?(.success(())) ?? () }
-        
-        PHPhotoLibrary.shared().performChanges {
-            PHAssetChangeRequest(for: phAsset).isFavorite = isFavorite
-        } completionHandler: { success, error in
-            if success {
-                completion?(.success(()))
-            } else {
-                completion?(.failure(error ?? Failure.unknownError))
-            }
-        }
-    }
-    
-    func favorite(completion: ((Result<Void, Error>) -> Void)? = nil) {
-        editFavoriteState(isFavorite: true, completion: completion)
-    }
-    
-    func unfavorite(completion: ((Result<Void, Error>) -> Void)? = nil) {
-        editFavoriteState(isFavorite: false, completion: completion)
-    }
-    
-    func editFavoriteState(isFavorite: Bool) async throws {
-        guard isFavorite != phAsset.isFavorite else { return }
-        
-        try await PHPhotoLibrary.shared().performChanges {
-            PHAssetChangeRequest(for: phAsset).isFavorite = isFavorite
-        }
-    }
-    
-    func favorite() async throws {
-        try await editFavoriteState(isFavorite: true)
-    }
-    
-    func unfavorite() async throws {
-        try await editFavoriteState(isFavorite: false)
+    public var isFavorite: Bool {
+        phAsset.isFavorite
     }
 }

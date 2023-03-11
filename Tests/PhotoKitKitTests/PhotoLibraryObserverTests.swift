@@ -13,7 +13,7 @@ import Combine
 // MARK: TestablePhotoLibraryObserver
 
 private final class TestablePhotoLibraryObserver: NSObject, PhotoLibraryObserver {
-    var fetchResults = PHFetchResults<Asset>(.init())
+    var fetchResults = PHFetchResults<StaticAsset>(.init())
     
     func photoLibraryDidChange(_ changeInstance: PHChange) {
         process(change: changeInstance)

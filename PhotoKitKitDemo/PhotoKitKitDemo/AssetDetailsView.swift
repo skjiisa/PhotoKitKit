@@ -11,7 +11,7 @@ import PhotoKitKit
 
 struct AssetDetailsView: View {
     
-    var asset: Asset
+    @ObservedObject var asset: Asset
     
     @StateObject private var viewModel = ViewModel()
     
@@ -23,6 +23,9 @@ struct AssetDetailsView: View {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
+                    .overlay(alignment: .topTrailing) {
+                        favoriteButton
+                    }
             case .failure(_):
                 Color.gray
             case .none:
@@ -45,9 +48,23 @@ struct AssetDetailsView: View {
         }
     }
     
+    private var favoriteButton: some View {
+        Button {
+            asset.toggleFavorite()
+        } label: {
+            let heart = asset.isFavorite ? "heart.fill" : "heart"
+            Image(systemName: heart)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 24)
+                .foregroundColor(.red)
+        }
+        .padding()
+    }
+    
     private func loadAsset() {
-        viewModel.loadPreviewImage(for: asset)
-        viewModel.loadAlbums(for: asset)
+        viewModel.loadPreviewImage(for: asset.staticAsset)
+        viewModel.loadAlbums(for: asset.staticAsset)
     }
 }
 
@@ -60,11 +77,11 @@ extension AssetDetailsView {
             process(change: changeInstance)
         }
         
-        func loadAlbums(for asset: Asset) {
+        func loadAlbums(for asset: StaticAsset) {
             fetchResults = asset.fetchAllAlbums()
         }
         
-        func loadPreviewImage(for asset: Asset) {
+        func loadPreviewImage(for asset: StaticAsset) {
             let options = PHImageRequestOptions()
             options.deliveryMode = .opportunistic
             options.isNetworkAccessAllowed = true
