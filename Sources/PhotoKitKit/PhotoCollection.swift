@@ -7,34 +7,27 @@
 
 import Photos
 
+// MARK: - Dependencies
+
+protocol PHAssetFetcher {
+    static func fetchAssets(in assetCollection: PHAssetCollection, options: PHFetchOptions?) -> PHFetchResult<PHAsset>
+}
+
+extension PHAsset: PHAssetFetcher { }
+
+protocol PHCollectionFetcher {
+    static func fetchCollections(in collectionList: PHCollectionList, options: PHFetchOptions?) -> PHFetchResult<PHCollection>
+    static func fetchTopLevelUserCollections(with options: PHFetchOptions?) -> PHFetchResult<PHCollection>
+}
+
+extension PHCollection: PHCollectionFetcher { }
+
 // MARK: - PhotoCollection
 
 public enum PhotoCollection: PHFetchableWrapper, Hashable {
     case album(Album)
     case folder(Folder)
     case unknown(PHCollection)
-    
-    public var phCollection: PHCollection {
-        switch self {
-        case .album(let album):         return album.phAlbum
-        case .folder(let folder):       return folder.phList
-        case .unknown(let collection):  return collection
-        }
-    }
-    
-    public var children: [PhotoCollection]? {
-        guard case .folder(let folder) = self else {
-            return nil
-        }
-        return folder.getCollections()
-    }
-    
-    public var lazyChildren: PHFetchResults<PhotoCollection>? {
-        guard case .folder(let folder) = self else {
-            return nil
-        }
-        return folder.fetchCollections()
-    }
     
     public init(_ phCollection: PHCollection) {
         if let album = phCollection as? PHAssetCollection {
@@ -47,6 +40,29 @@ public enum PhotoCollection: PHFetchableWrapper, Hashable {
             // rather keep this type-safe than need to force unwrap.
             self = .unknown(phCollection)
         }
+    }
+    
+    public var phCollection: PHCollection {
+        switch self {
+        case .album(let album):         return album.phAlbum
+        case .folder(let folder):       return folder.phList
+        case .unknown(let collection):  return collection
+        }
+    }
+    
+    public var lazyChildren: PHFetchResults<PhotoCollection>? {
+        guard case .folder(let folder) = self else {
+            return nil
+        }
+        // TODO: Add options through a stored property?
+        return folder.fetchCollections()
+    }
+    
+    public var children: [PhotoCollection]? {
+        guard case .folder(let folder) = self else {
+            return nil
+        }
+        return folder.getCollections()
     }
 }
 
@@ -75,36 +91,40 @@ public extension PhotoCollection {
 
 // MARK: Album + Convenience
 
-public extension PhotoCollection.Album {
-    var title: String {
+extension PhotoCollection.Album {
+    static var assetFetcher: PHAssetFetcher.Type = PHAsset.self
+    
+    public var title: String {
         phAlbum.localizedTitle ?? ""
     }
     
-    func contains(_ asset: Asset) -> Bool {
+    public func contains(_ asset: Asset) -> Bool {
         fetchAssets().fetchResults.contains(asset.phAsset)
     }
     
-    func fetchAssets() -> PHFetchResults<Asset> {
-        .init(PHAsset.fetchAssets(in: phAlbum, options: nil))
+    public func fetchAssets() -> PHFetchResults<Asset> {
+        .init(Self.assetFetcher.fetchAssets(in: phAlbum, options: nil))
     }
 }
 
 // MARK: Folder + Convenience
 
-public extension PhotoCollection.Folder {
-    var title: String {
+extension PhotoCollection.Folder {
+    static var collectionFetcher: PHCollectionFetcher.Type = PHCollection.self
+    
+    public var title: String {
         phList.localizedTitle ?? ""
     }
     
-    func getCollections() -> [PhotoCollection] {
-        PHCollection
+    public func fetchCollections() -> PHFetchResults<PhotoCollection> {
+        .init(Self.collectionFetcher.fetchCollections(in: phList, options: nil))
+    }
+    
+    public func getCollections() -> [PhotoCollection] {
+        Self.collectionFetcher
             .fetchCollections(in: phList, options: nil)
             .allObjects()
             .compactMap(PhotoCollection.init)
-    }
-    
-    func fetchCollections() -> PHFetchResults<PhotoCollection> {
-        .init(PHCollection.fetchCollections(in: phList, options: nil))
     }
 }
 
@@ -130,13 +150,15 @@ extension PhotoCollection.Folder: Identifiable {
 
 // MARK: - Static
 
-public extension PhotoCollection {
-    static func fetchTopLevelCollections() -> PHFetchResults<PhotoCollection> {
-        .init(PHAssetCollection.fetchTopLevelUserCollections(with: nil))
+extension PhotoCollection {
+    static var collectionFetcher: PHCollectionFetcher.Type = PHCollection.self
+    
+    public static func fetchTopLevelCollections() -> PHFetchResults<PhotoCollection> {
+        .init(collectionFetcher.fetchTopLevelUserCollections(with: nil))
     }
     
-    static func getTopLevelCollections() -> [PhotoCollection] {
-        PHAssetCollection
+    public static func getTopLevelCollections() -> [PhotoCollection] {
+        collectionFetcher
             .fetchTopLevelUserCollections(with: nil)
             .allObjects()
             .map(PhotoCollection.init)
