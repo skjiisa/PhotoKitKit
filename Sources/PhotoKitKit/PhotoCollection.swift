@@ -87,6 +87,19 @@ public extension PhotoCollection {
             self.phList = phList
         }
     }
+    
+    // MARK: Convenience
+    
+    var title: String {
+        switch self {
+        case .album(let album):
+            return album.title
+        case .folder(let folder):
+            return folder.title
+        case .unknown(let collection):
+            return collection.localizedTitle ?? ""
+        }
+    }
 }
 
 // MARK: Album + Convenience

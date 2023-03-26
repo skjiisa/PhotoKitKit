@@ -60,13 +60,13 @@ public extension Asset {
     // MARK: Image Data
     
     func getFullSizePreviewImage(
-        contentMode: PHImageContentMode,
         options: PHImageRequestOptions? = nil,
         resultHandler: @escaping (Result<UIImage, Error>, Set<PreviewInfo>) -> Void
     ) {
-        getPreviewImage(targetSize: PHImageManagerMaximumSize, contentMode: contentMode, options: options, resultHandler: resultHandler)
+        getPreviewImage(targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options, resultHandler: resultHandler)
     }
     
+    // TODO: Create async wrappers for these
     func getPreviewImage(
         targetSize: CGSize,
         contentMode: PHImageContentMode,
