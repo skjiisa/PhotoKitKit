@@ -20,3 +20,9 @@ extension PHObject: Identifiable {
         localIdentifier
     }
 }
+
+extension PHAsset {
+    func reload() -> PHAsset {
+        PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject ?? self
+    }
+}

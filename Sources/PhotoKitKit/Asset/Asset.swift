@@ -17,6 +17,7 @@ public typealias UIImage = NSImage
 
 public class Asset: NSObject, ObservableObject {
     @Published public var phAsset: PHAsset
+    
     public lazy var albums: PHFetchResults<PhotoCollection.Album> = {
         albumsLoaded = true
         return staticAsset.fetchAllAlbums()
@@ -26,20 +27,13 @@ public class Asset: NSObject, ObservableObject {
     public var changeAnimation: Animation? = .default
     
     public init(_ phAsset: PHAsset) {
-        self.phAsset = phAsset
+        self.phAsset = phAsset.reload()
         super.init()
         photoLibrary.register(self)
     }
     
-    public init(_ staticAsset: StaticAsset) {
-        self.phAsset = staticAsset.phAsset
-        super.init()
-        photoLibrary.register(self)
-    }
-    
-    public enum Animation {
-        case `default`
-        case custom(SwiftUI.Animation)
+    public convenience init(_ staticAsset: StaticAsset) {
+        self.init(staticAsset.phAsset)
     }
 }
 
@@ -183,10 +177,8 @@ extension Asset: PHPhotoLibraryChangeObserver {
             .objectAfterChanges else { return }
         
         print("Asset processing:", id)
-        DispatchQueue.main.async {
-            self.animate {
-                self.phAsset = newAsset
-            }
+        self.animate {
+            self.phAsset = newAsset
         }
     }
     
@@ -199,26 +191,17 @@ extension Asset: PHPhotoLibraryChangeObserver {
         else { return }
         
         print("Asset albums processing:", id)
-        DispatchQueue.main.async {
-            self.animate {
-                self.objectWillChange.send()
-                self.albums.fetchResults = newFetchResults
-            }
+        self.animate {
+            self.albums.fetchResults = newFetchResults
         }
     }
     
-    private func animate(change: () -> Void) {
-        switch self.changeAnimation {
-        case .default:
-            withAnimation {
+    private func animate(change: @escaping () -> Void) {
+        Task { @MainActor in
+            withAnimation(changeAnimation) {
+                self.objectWillChange.send()
                 change()
             }
-        case .custom(let animation):
-            withAnimation(animation) {
-                change()
-            }
-        case .none:
-            change()
         }
     }
 }

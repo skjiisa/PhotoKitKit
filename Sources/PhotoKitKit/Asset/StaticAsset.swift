@@ -40,6 +40,12 @@ extension StaticAsset: Identifiable {
 
 extension StaticAsset: AssetRepresentable {
     
+    // MARK: Loading
+    
+    public func reload() -> StaticAsset {
+        StaticAsset(phAsset.reload())
+    }
+    
     // MARK: Albums
     
     //TODO: Options
