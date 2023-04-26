@@ -42,7 +42,7 @@ final class PhotoLibraryObserverTests: XCTestCase {
         photoLibrary = PHPhotoLibrary.shared()
     }
     
-    // MARK: Regristration
+    // MARK: Registration
 
     func testRegistration() {
         let sut = SUT()
