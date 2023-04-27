@@ -118,6 +118,13 @@ extension PhotoCollection.Album {
     public func fetchAssets() -> PHFetchResults<StaticAsset> {
         .init(Self.assetFetcher.fetchAssets(in: phAlbum, options: nil))
     }
+    
+    public func getAssets() -> [StaticAsset] {
+        Self.assetFetcher
+            .fetchAssets(in: phAlbum, options: nil)
+            .allObjects()
+            .map(StaticAsset.init)
+    }
 }
 
 // MARK: Folder + Convenience
@@ -175,5 +182,16 @@ extension PhotoCollection {
             .fetchTopLevelUserCollections(with: nil)
             .allObjects()
             .map(PhotoCollection.init)
+    }
+    
+    public static func fetchAlbums() -> PHFetchResults<Album> {
+        .init(PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumRegular, options: nil))
+    }
+    
+    public static func getAlbums() -> [Album] {
+        PHAssetCollection
+            .fetchAssetCollections(with: .album, subtype: .albumRegular, options: nil)
+            .allObjects()
+            .map(Album.init)
     }
 }
