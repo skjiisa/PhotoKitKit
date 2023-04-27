@@ -160,3 +160,19 @@ extension StaticAsset: AssetRepresentable {
         phAsset.isFavorite
     }
 }
+
+// MARK: - Static
+
+extension StaticAsset {
+    // TODO: Options
+    public static func fetchAssets() -> PHFetchResults<StaticAsset> {
+        .init(PHAsset.fetchAssets(with: nil))
+    }
+    
+    public static func getAssets() -> [StaticAsset] {
+        PHAsset
+            .fetchAssets(with: nil)
+            .allObjects()
+            .map(StaticAsset.init)
+    }
+}
