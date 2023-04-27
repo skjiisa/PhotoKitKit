@@ -13,7 +13,7 @@ struct AssetDetailsView: View {
     
     @ObservedObject var asset: Asset
     
-    @State private var image: Result<UIImage, Error>?
+    @State private var image: Result<UIImage, Asset.Failure>?
     
     var body: some View {
         VStack {

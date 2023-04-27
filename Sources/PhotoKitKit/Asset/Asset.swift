@@ -15,7 +15,7 @@ import AppKit
 public typealias UIImage = NSImage
 #endif
 
-public class Asset: NSObject, ObservableObject {
+public class Asset: NSObject, ObservableObject, AssetRepresentable {
     @Published public var phAsset: PHAsset
     
     public lazy var albums: PHFetchResults<PhotoCollection.Album> = {
@@ -26,7 +26,7 @@ public class Asset: NSObject, ObservableObject {
     
     public var changeAnimation: Animation? = .default
     
-    public init(_ phAsset: PHAsset) {
+    public required init(_ phAsset: PHAsset) {
         self.phAsset = phAsset.reload()
         super.init()
         photoLibrary.register(self)
@@ -43,17 +43,12 @@ extension Asset {
     }
 }
 
-// MARK: - Identifiable
-
-extension Asset: Identifiable {
-    public var id: String {
-        phAsset.id
-    }
-}
-
 // MARK: - Convenience
 
-extension Asset: AssetRepresentable {
+extension Asset {
+    
+    // MARK: Albums
+    
     public func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album> {
         staticAsset.fetchAllAlbums()
     }
@@ -62,11 +57,13 @@ extension Asset: AssetRepresentable {
         staticAsset.getAllAlbums()
     }
     
+    // MARK: Image Data
+    
     public typealias PreviewInfo = StaticAsset.PreviewInfo
     
     public func getFullSizePreviewImage(
         options: PHImageRequestOptions? = nil,
-        resultHandler: @escaping (Result<UIImage, Error>, Set<PreviewInfo>) -> Void
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
     ) {
         staticAsset.getFullSizePreviewImage(options: options, resultHandler: resultHandler)
     }
@@ -75,34 +72,26 @@ extension Asset: AssetRepresentable {
         targetSize: CGSize,
         contentMode: PHImageContentMode,
         options: PHImageRequestOptions? = nil,
-        resultHandler: @escaping (Result<UIImage, Error>, Set<PreviewInfo>) -> Void
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
     ) {
         staticAsset.getPreviewImage(targetSize: targetSize, contentMode: contentMode, options: options, resultHandler: resultHandler)
     }
     
-    public func getFullImageData(completion: @escaping (Result<Data, Error>) -> Void) {
+    public func getFullImageData(completion: @escaping (Result<Data, Failure>) -> Void) {
         staticAsset.getFullImageData(completion: completion)
     }
     
-    public func getFullImageDataProgressively(completion: @escaping (Result<Data, Error>) -> Void) {
+    public func getFullImageDataProgressively(completion: @escaping (Result<Data, Failure>) -> Void) {
         staticAsset.getFullImageDataProgressively(completion: completion)
     }
     
     // MARK: Favorites
     
-    public enum Failure: Error {
-        case noResources
-        case error(Error)
-        case unknown
-    }
+    public typealias Failure = StaticAsset.Failure
     
     public enum ChangeResult {
         case success
         case failure(Failure)
-    }
-    
-    public var isFavorite: Bool {
-        phAsset.isFavorite
     }
     
     public func editFavoriteState(isFavorite: Bool, completion: ((ChangeResult) -> Void)? = nil) {
@@ -115,16 +104,13 @@ extension Asset: AssetRepresentable {
         PHPhotoLibrary.shared().performChanges {
             PHAssetChangeRequest(for: phAsset).isFavorite = isFavorite
         } completionHandler: { success, error in
-            if success {
+            switch (success, error) {
+            case (true, _):
                 completion?(.success)
-            } else {
-                let failure: Failure
-                if let error {
-                    failure = .error(error)
-                } else {
-                    failure = .unknown
-                }
-                completion?(.failure(failure))
+            case (false, .some(let error)):
+                completion?(.failure(.photoKit(error)))
+            case (false, .none):
+                completion?(.failure(.unknownError))
             }
         }
     }

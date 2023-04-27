@@ -14,8 +14,41 @@ import AppKit
 public typealias UIImage = NSImage
 #endif
 
-public protocol AssetRepresentable {
+public protocol AssetRepresentable: Identifiable {
+    // Properties
+    var phAsset: PHAsset { get }
+    init(_ phAsset: PHAsset)
+    
+    // Albums
     func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album>
+    func getAllAlbums() -> [PhotoCollection.Album]
+    
+    // Image Data
+    associatedtype PreviewInfo: Hashable
+    associatedtype Failure: Error
+    func getFullSizePreviewImage(
+        options: PHImageRequestOptions?,
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
+    )
+    func getPreviewImage(
+        targetSize: CGSize,
+        contentMode: PHImageContentMode,
+        options: PHImageRequestOptions?,
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
+    )
+    func getFullImageData(completion: @escaping (Result<Data, Failure>) -> Void)
+    func getFullImageDataProgressively(completion: @escaping (Result<Data, Failure>) -> Void)
+}
+
+// Identifiable
+extension AssetRepresentable {
+    public var id: String {
+        phAsset.id
+    }
+    
+    public var isFavorite: Bool {
+        phAsset.isFavorite
+    }
 }
 
 // MARK: - StaticAsset
@@ -25,14 +58,6 @@ public struct StaticAsset: Hashable, PHFetchableWrapper {
     
     public init(_ phAsset: PHAsset) {
         self.phAsset = phAsset
-    }
-}
-
-// MARK: - Identifiable
-
-extension StaticAsset: Identifiable {
-    public var id: String {
-        phAsset.id
     }
 }
 
@@ -72,7 +97,7 @@ extension StaticAsset: AssetRepresentable {
     
     public func getFullSizePreviewImage(
         options: PHImageRequestOptions? = nil,
-        resultHandler: @escaping (Result<UIImage, Error>, Set<PreviewInfo>) -> Void
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
     ) {
         getPreviewImage(targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options, resultHandler: resultHandler)
     }
@@ -82,7 +107,7 @@ extension StaticAsset: AssetRepresentable {
         targetSize: CGSize,
         contentMode: PHImageContentMode,
         options: PHImageRequestOptions? = nil,
-        resultHandler: @escaping (Result<UIImage, Error>, Set<PreviewInfo>) -> Void
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
     ) {
         PHImageManager.default().requestImage(for: phAsset, targetSize: targetSize, contentMode: contentMode, options: nil) { image, infoDictionary in
             var info = Set<PreviewInfo>()
@@ -110,20 +135,19 @@ extension StaticAsset: AssetRepresentable {
                 resultHandler(.success(image), info)
             } else {
                 let error = infoDictionary?[PHImageErrorKey] as? NSError
-                resultHandler(.failure(error ?? Failure.unknownError), info)
+                resultHandler(.failure(.init(photoKitError: error)), info)
             }
         }
     }
     
-    // TODO: Add something like "ForStorage" at the end to indicate that it's not for turning into an image?
-    public func getFullImageData(completion: @escaping (Result<Data, Error>) -> Void) {
+    public func getFullImageData(completion: @escaping (Result<Data, Failure>) -> Void) {
         guard let resource = PHAssetResource.assetResources(for: phAsset).first else {
             return completion(.failure(Failure.noResources))
         }
         var data: [Data] = []
         PHAssetResourceManager.default().requestData(for: resource, options: nil, dataReceivedHandler: { data.append($0) }) { error in
             guard !data.isEmpty else {
-                return completion(.failure(error ?? Failure.unknownError))
+                return completion(.failure(.init(photoKitError: error)))
             }
             return completion(.success(data.reduce(Data(), +)))
         }
@@ -136,9 +160,9 @@ extension StaticAsset: AssetRepresentable {
     // it uploads, but I personally have no idea how that could be done
     //
     // Maybe make a silenceable warning with some kind of override function?
-    public func getFullImageDataProgressively(completion: @escaping (Result<Data, Error>) -> Void) {
+    public func getFullImageDataProgressively(completion: @escaping (Result<Data, Failure>) -> Void) {
         guard let resource = PHAssetResource.assetResources(for: phAsset).first else {
-            return completion(.failure(Failure.noResources))
+            return completion(.failure(.noResources))
         }
         var data = Data()
         PHAssetResourceManager.default().requestData(for: resource, options: nil) {
@@ -146,18 +170,24 @@ extension StaticAsset: AssetRepresentable {
             completion(.success(data))
         } completionHandler: { error in
             if let error {
-                completion(.failure(error))
+                completion(.failure(.photoKit(error)))
             }
         }
     }
     
     public enum Failure: Error {
         case noResources
+        case photoKit(Error)
         case unknownError
-    }
-    
-    public var isFavorite: Bool {
-        phAsset.isFavorite
+        
+        init(photoKitError: Error?) {
+            switch photoKitError {
+            case .some(let error):
+                self = .photoKit(error)
+            case .none:
+                self = .unknownError
+            }
+        }
     }
 }
 

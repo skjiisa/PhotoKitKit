@@ -16,7 +16,7 @@ struct Thumbnail: View {
     
     var asset: StaticAsset
     
-    @State private var image: Result<UIImage, Error>?
+    @State private var image: Result<UIImage, StaticAsset.Failure>?
     
     var body: some View {
         GeometryReader { geo in
