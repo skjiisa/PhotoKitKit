@@ -14,7 +14,7 @@ import AppKit
 public typealias UIImage = NSImage
 #endif
 
-public protocol AssetRepresentable: Identifiable {
+public protocol AssetRepresentable: Identifiable, PHFetchableWrapper {
     // Properties
     var phAsset: PHAsset { get }
     init(_ phAsset: PHAsset)
@@ -53,7 +53,7 @@ extension AssetRepresentable {
 
 // MARK: - StaticAsset
 
-public struct StaticAsset: Hashable, PHFetchableWrapper {
+public struct StaticAsset: Hashable {
     public let phAsset: PHAsset
     
     public init(_ phAsset: PHAsset) {

@@ -125,6 +125,14 @@ extension PhotoCollection.Album {
             .allObjects()
             .map(StaticAsset.init)
     }
+    
+    public func fetchDynamicAssets() -> PHFetchResults<Asset> {
+        .init(Self.assetFetcher.fetchAssets(in: phAlbum, options: nil))
+    }
+    
+    public func getDynamicAssets() -> [Asset] {
+        self.getAssets().map(Asset.init)
+    }
 }
 
 // MARK: Folder + Convenience
