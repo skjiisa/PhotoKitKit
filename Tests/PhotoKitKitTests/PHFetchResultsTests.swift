@@ -13,7 +13,7 @@ final class PHFetchResultsTests: XCTestCase {
     
     // MARK: Typealiases
     
-    private typealias SUT = PHFetchResults<Asset>
+    private typealias SUT = PHFetchResults<StaticAsset>
     private typealias FetchResult = MockAssetFetchResult
     
     // MARK: RandomAccessCollection

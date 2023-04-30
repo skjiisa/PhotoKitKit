@@ -55,7 +55,7 @@ final class AlbumTests: XCTestCase {
     // MARK: Contains
     
     func testContains() {
-        let mockAsset = Asset(PHAsset())
+        let mockAsset = StaticAsset(PHAsset())
         
         let sut = SUT(PHAssetCollection())
         
@@ -67,7 +67,7 @@ final class AlbumTests: XCTestCase {
     }
     
     func testDoesNotContain() {
-        let mockAsset = Asset(PHAsset())
+        let mockAsset = StaticAsset(PHAsset())
         
         let sut = SUT(PHAssetCollection())
         

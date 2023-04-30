@@ -17,14 +17,22 @@ struct AlbumsList: View {
     @StateObject private var viewModel = ViewModel()
     
     var body: some View {
-        List(viewModel.fetchResults, children: \.lazyChildren) { collection in
-            switch collection {
-            case .album(let album):
-                NavigationLink(album.title) {
-                    AlbumView(albumDetails: viewModel.viewModel(for: album))
+        Form {
+            List(viewModel.fetchResults, children: \.lazyChildren) { collection in
+                switch collection {
+                case .album(let album):
+                    NavigationLink(album.title) {
+                        AlbumView(albumDetails: viewModel.viewModel(for: album))
+                    }
+                default:
+                    Text(collection.title)
                 }
-            default:
-                Text(collection.title)
+            }
+            
+            Section {
+                NavigationLink("Unsorted") {
+                    UnsortedAssetsView()
+                }
             }
         }
         .navigationTitle("Albums")

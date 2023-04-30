@@ -20,11 +20,11 @@ struct AlbumView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3)) {
-                ForEach(albumDetails.fetchResults) { asset in
+                ForEach(albumDetails.fetchResults) { staticAsset in
                     Button {
-                        selection = asset
+                        selection = Asset(staticAsset)
                     } label: {
-                        Thumbnail(asset: asset)
+                        Thumbnail(asset: staticAsset)
                     }
                 }
             }
@@ -38,7 +38,7 @@ struct AlbumView: View {
 // MARK: View Model
 
 class AlbumDetails: NSObject, PhotoLibraryObserver {
-    var fetchResults: PHFetchResults<Asset>
+    var fetchResults: PHFetchResults<StaticAsset>
     
     init(album: PhotoCollection.Album) {
         self.fetchResults = album.fetchAssets()

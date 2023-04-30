@@ -11,12 +11,12 @@
 		D78C742929B9A4DD0033A2A7 /* Thumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78C742829B9A4DD0033A2A7 /* Thumbnail.swift */; };
 		D78C742C29B9A7F00033A2A7 /* CoalescingOperators in Frameworks */ = {isa = PBXBuildFile; productRef = D78C742B29B9A7F00033A2A7 /* CoalescingOperators */; };
 		D79AF2B329BAD34100BA1213 /* AssetDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79AF2B229BAD34100BA1213 /* AssetDetailsView.swift */; };
+		D79C0C1629F8D0320004C484 /* PhotoKitKit in Frameworks */ = {isa = PBXBuildFile; productRef = D79C0C1529F8D0320004C484 /* PhotoKitKit */; };
+		D79C0C1829F8E4200004C484 /* UnsortedAssetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C0C1729F8E4200004C484 /* UnsortedAssetsView.swift */; };
 		D79C585329B9986700A7B1F5 /* PhotoKitKitDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C585229B9986700A7B1F5 /* PhotoKitKitDemoApp.swift */; };
 		D79C585529B9986700A7B1F5 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C585429B9986700A7B1F5 /* ContentView.swift */; };
 		D79C585729B9986800A7B1F5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D79C585629B9986800A7B1F5 /* Assets.xcassets */; };
 		D79C585A29B9986800A7B1F5 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D79C585929B9986800A7B1F5 /* Preview Assets.xcassets */; };
-		D79C586129B9989400A7B1F5 /* PhotoKitKit in Resources */ = {isa = PBXBuildFile; fileRef = D79C586029B9988C00A7B1F5 /* PhotoKitKit */; };
-		D79C586429B9995300A7B1F5 /* PhotoKitKit in Frameworks */ = {isa = PBXBuildFile; productRef = D79C586329B9995300A7B1F5 /* PhotoKitKit */; };
 		D79C586629B99B4B00A7B1F5 /* AlbumsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79C586529B99B4B00A7B1F5 /* AlbumsList.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,12 +24,13 @@
 		D78C742629B9A2500033A2A7 /* AlbumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumView.swift; sourceTree = "<group>"; };
 		D78C742829B9A4DD0033A2A7 /* Thumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Thumbnail.swift; sourceTree = "<group>"; };
 		D79AF2B229BAD34100BA1213 /* AssetDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDetailsView.swift; sourceTree = "<group>"; };
+		D79C0C1429F8D02B0004C484 /* PhotoKitKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PhotoKitKit; path = ..; sourceTree = "<group>"; };
+		D79C0C1729F8E4200004C484 /* UnsortedAssetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsortedAssetsView.swift; sourceTree = "<group>"; };
 		D79C584F29B9986700A7B1F5 /* PhotoKitKitDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoKitKitDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D79C585229B9986700A7B1F5 /* PhotoKitKitDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoKitKitDemoApp.swift; sourceTree = "<group>"; };
 		D79C585429B9986700A7B1F5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D79C585629B9986800A7B1F5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D79C585929B9986800A7B1F5 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		D79C586029B9988C00A7B1F5 /* PhotoKitKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PhotoKitKit; path = ..; sourceTree = "<group>"; };
 		D79C586529B99B4B00A7B1F5 /* AlbumsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsList.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -39,19 +40,27 @@
 			buildActionMask = 2147483647;
 			files = (
 				D78C742C29B9A7F00033A2A7 /* CoalescingOperators in Frameworks */,
-				D79C586429B9995300A7B1F5 /* PhotoKitKit in Frameworks */,
+				D79C0C1629F8D0320004C484 /* PhotoKitKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D79C0C1329F8CFEA0004C484 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		D79C584629B9986700A7B1F5 = {
 			isa = PBXGroup;
 			children = (
-				D79C586029B9988C00A7B1F5 /* PhotoKitKit */,
+				D79C0C1429F8D02B0004C484 /* PhotoKitKit */,
 				D79C585129B9986700A7B1F5 /* PhotoKitKitDemo */,
 				D79C585029B9986700A7B1F5 /* Products */,
+				D79C0C1329F8CFEA0004C484 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,6 +78,7 @@
 				D79C585229B9986700A7B1F5 /* PhotoKitKitDemoApp.swift */,
 				D79C585429B9986700A7B1F5 /* ContentView.swift */,
 				D79C586529B99B4B00A7B1F5 /* AlbumsList.swift */,
+				D79C0C1729F8E4200004C484 /* UnsortedAssetsView.swift */,
 				D78C742629B9A2500033A2A7 /* AlbumView.swift */,
 				D78C742829B9A4DD0033A2A7 /* Thumbnail.swift */,
 				D79AF2B229BAD34100BA1213 /* AssetDetailsView.swift */,
@@ -103,8 +113,8 @@
 			);
 			name = PhotoKitKitDemo;
 			packageProductDependencies = (
-				D79C586329B9995300A7B1F5 /* PhotoKitKit */,
 				D78C742B29B9A7F00033A2A7 /* CoalescingOperators */,
+				D79C0C1529F8D0320004C484 /* PhotoKitKit */,
 			);
 			productName = PhotoKitKitDemo;
 			productReference = D79C584F29B9986700A7B1F5 /* PhotoKitKitDemo.app */;
@@ -135,7 +145,6 @@
 			);
 			mainGroup = D79C584629B9986700A7B1F5;
 			packageReferences = (
-				D79C586229B9995300A7B1F5 /* XCRemoteSwiftPackageReference "PhotoKitKit" */,
 				D78C742A29B9A7F00033A2A7 /* XCRemoteSwiftPackageReference "Coalescing-Operators" */,
 			);
 			productRefGroup = D79C585029B9986700A7B1F5 /* Products */;
@@ -152,7 +161,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D79C586129B9989400A7B1F5 /* PhotoKitKit in Resources */,
 				D79C585A29B9986800A7B1F5 /* Preview Assets.xcassets in Resources */,
 				D79C585729B9986800A7B1F5 /* Assets.xcassets in Resources */,
 			);
@@ -170,6 +178,7 @@
 				D78C742729B9A2500033A2A7 /* AlbumView.swift in Sources */,
 				D78C742929B9A4DD0033A2A7 /* Thumbnail.swift in Sources */,
 				D79AF2B329BAD34100BA1213 /* AssetDetailsView.swift in Sources */,
+				D79C0C1829F8E4200004C484 /* UnsortedAssetsView.swift in Sources */,
 				D79C585329B9986700A7B1F5 /* PhotoKitKitDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -299,6 +308,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PhotoKitKitDemo/Preview Content\"";
+				DEVELOPMENT_TEAM = A4525544Q4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Helps users organizer their photos";
@@ -329,6 +339,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PhotoKitKitDemo/Preview Content\"";
+				DEVELOPMENT_TEAM = A4525544Q4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Helps users organizer their photos";
@@ -383,14 +394,6 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		D79C586229B9995300A7B1F5 /* XCRemoteSwiftPackageReference "PhotoKitKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/skjiisa/PhotoKitKit.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -399,9 +402,8 @@
 			package = D78C742A29B9A7F00033A2A7 /* XCRemoteSwiftPackageReference "Coalescing-Operators" */;
 			productName = CoalescingOperators;
 		};
-		D79C586329B9995300A7B1F5 /* PhotoKitKit */ = {
+		D79C0C1529F8D0320004C484 /* PhotoKitKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D79C586229B9995300A7B1F5 /* XCRemoteSwiftPackageReference "PhotoKitKit" */;
 			productName = PhotoKitKit;
 		};
 /* End XCSwiftPackageProductDependency section */

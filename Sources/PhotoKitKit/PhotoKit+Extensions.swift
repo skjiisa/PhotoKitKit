@@ -20,3 +20,11 @@ extension PHObject: Identifiable {
         localIdentifier
     }
 }
+
+extension PHAsset {
+    // TODO: What if the asset is deleted?
+    // Should that return `nil`
+    func reload() -> PHAsset {
+        PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject ?? self
+    }
+}

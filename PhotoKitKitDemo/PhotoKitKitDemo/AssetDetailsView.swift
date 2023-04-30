@@ -11,68 +11,62 @@ import PhotoKitKit
 
 struct AssetDetailsView: View {
     
-    var asset: Asset
+    @ObservedObject var asset: Asset
     
-    @StateObject private var viewModel = ViewModel()
+    @State private var image: Result<UIImage, Asset.Failure>?
     
     var body: some View {
         VStack {
-            // TODO: Create a custom view to handle this more elegantly?
-            switch viewModel.image {
+            switch image {
             case .success(let image):
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
+                    .overlay(alignment: .topTrailing) {
+                        favoriteButton
+                    }
             case .failure(_):
                 Color.gray
             case .none:
                 ProgressView()
                     .fixedSize()
-                    .onAppear(perform: loadAsset)
+                    .onAppear(perform: loadImage)
             }
             
-            if let albums = viewModel.fetchResults {
-                Spacer()
-                
-                Text("Albums")
-                    .font(.headline)
-                ForEach(albums) { album in
-                    Text(album.title)
-                }
+            Spacer()
+            
+            Text("Albums")
+                .font(.headline)
+            ForEach(asset.albums) { album in
+                Text(album.title)
             }
             
             Spacer()
         }
     }
     
-    private func loadAsset() {
-        viewModel.loadPreviewImage(for: asset)
-        viewModel.loadAlbums(for: asset)
+    private var favoriteButton: some View {
+        Button {
+            asset.toggleFavorite()
+        } label: {
+            let heart = asset.isFavorite ? "heart.fill" : "heart"
+            Image(systemName: heart)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 24)
+                .foregroundColor(.red)
+        }
+        .padding()
     }
-}
-
-extension AssetDetailsView {
-    class ViewModel: NSObject, PhotoLibraryObserverOptional {
-        @Published var image: Result<UIImage, Error>?
-        var fetchResults: PHFetchResults<PhotoCollection.Album>?
+    
+    private func loadImage() {
+        let options = PHImageRequestOptions()
+        options.deliveryMode = .opportunistic
+        options.isNetworkAccessAllowed = true
         
-        func photoLibraryDidChange(_ changeInstance: PHChange) {
-            process(change: changeInstance)
-        }
-        
-        func loadAlbums(for asset: Asset) {
-            fetchResults = asset.fetchAllAlbums()
-        }
-        
-        func loadPreviewImage(for asset: Asset) {
-            let options = PHImageRequestOptions()
-            options.deliveryMode = .opportunistic
-            options.isNetworkAccessAllowed = true
-            
-            asset.getFullSizePreviewImage(options: options) { [weak self] result, _ in
-                DispatchQueue.main.async {
-                    self?.image = result
-                }
+        asset.getFullSizePreviewImage(options: options) { result, _ in
+            DispatchQueue.main.async {
+                self.image = result
             }
         }
     }

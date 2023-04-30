@@ -14,9 +14,9 @@ import PhotoKitKit
 struct Thumbnail: View {
     @Environment(\.displayScale) private var displayScale
     
-    var asset: Asset
+    var asset: StaticAsset
     
-    @State private var image: Result<UIImage, Error>?
+    @State private var image: Result<UIImage, StaticAsset.Failure>?
     
     var body: some View {
         GeometryReader { geo in

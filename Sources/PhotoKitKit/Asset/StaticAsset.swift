@@ -1,5 +1,5 @@
 //
-//  Asset.swift
+//  StaticAsset.swift
 //  PhotoKitKit
 //
 //  Created by Elaine Lyons on 2/22/23.
@@ -14,9 +14,46 @@ import AppKit
 public typealias UIImage = NSImage
 #endif
 
-// MARK: - Asset
+public protocol AssetRepresentable: Identifiable {
+    // Properties
+    var phAsset: PHAsset { get }
+    init(_ phAsset: PHAsset)
+    
+    // Albums
+    func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album>
+    func getAllAlbums() -> [PhotoCollection.Album]
+    
+    // Image Data
+    associatedtype PreviewInfo: Hashable
+    associatedtype Failure: Error
+    func getFullSizePreviewImage(
+        options: PHImageRequestOptions?,
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
+    )
+    func getPreviewImage(
+        targetSize: CGSize,
+        contentMode: PHImageContentMode,
+        options: PHImageRequestOptions?,
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
+    )
+    func getFullImageData(completion: @escaping (Result<Data, Failure>) -> Void)
+    func getFullImageDataProgressively(completion: @escaping (Result<Data, Failure>) -> Void)
+}
 
-public struct Asset: Hashable, PHFetchableWrapper {
+// Identifiable
+extension AssetRepresentable {
+    public var id: String {
+        phAsset.id
+    }
+    
+    public var isFavorite: Bool {
+        phAsset.isFavorite
+    }
+}
+
+// MARK: - StaticAsset
+
+public struct StaticAsset: Hashable, PHFetchableWrapper {
     public let phAsset: PHAsset
     
     public init(_ phAsset: PHAsset) {
@@ -24,54 +61,53 @@ public struct Asset: Hashable, PHFetchableWrapper {
     }
 }
 
-// MARK: - Identifiable
-
-extension Asset: Identifiable {
-    public var id: String {
-        phAsset.id
-    }
-}
-
 // MARK: - Convenience
 
-public extension Asset {
+extension StaticAsset: AssetRepresentable {
+    
+    // MARK: Loading
+    
+    public func reload() -> StaticAsset {
+        StaticAsset(phAsset.reload())
+    }
     
     // MARK: Albums
     
     //TODO: Options
-    func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album> {
+    // It seems like this doesn't actually update on its own from photo library change observations?
+    public func fetchAllAlbums() -> PHFetchResults<PhotoCollection.Album> {
         .init(PHAssetCollection.fetchAssetCollectionsContaining(phAsset, with: .album, options: nil))
     }
     
-    func getAllAlbums() -> [PhotoCollection.Album] {
+    public func getAllAlbums() -> [PhotoCollection.Album] {
         PHAssetCollection
             .fetchAssetCollectionsContaining(phAsset, with: .album, options: nil)
             .allObjects()
             .map(PhotoCollection.Album.init)
     }
     
-    enum PreviewInfo: Hashable {
+    // MARK: Image Data
+    
+    public enum PreviewInfo: Hashable {
         case cloud
         case thumbnail
         case requestID(Int)
         case canceled
     }
     
-    // MARK: Image Data
-    
-    func getFullSizePreviewImage(
+    public func getFullSizePreviewImage(
         options: PHImageRequestOptions? = nil,
-        resultHandler: @escaping (Result<UIImage, Error>, Set<PreviewInfo>) -> Void
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
     ) {
         getPreviewImage(targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: options, resultHandler: resultHandler)
     }
     
     // TODO: Create async wrappers for these
-    func getPreviewImage(
+    public func getPreviewImage(
         targetSize: CGSize,
         contentMode: PHImageContentMode,
         options: PHImageRequestOptions? = nil,
-        resultHandler: @escaping (Result<UIImage, Error>, Set<PreviewInfo>) -> Void
+        resultHandler: @escaping (Result<UIImage, Failure>, Set<PreviewInfo>) -> Void
     ) {
         PHImageManager.default().requestImage(for: phAsset, targetSize: targetSize, contentMode: contentMode, options: nil) { image, infoDictionary in
             var info = Set<PreviewInfo>()
@@ -99,20 +135,19 @@ public extension Asset {
                 resultHandler(.success(image), info)
             } else {
                 let error = infoDictionary?[PHImageErrorKey] as? NSError
-                resultHandler(.failure(error ?? Failure.unknownError), info)
+                resultHandler(.failure(.init(photoKitError: error)), info)
             }
         }
     }
     
-    // TODO: Add something like "ForStorage" at the end to indicate that it's not for turning into an image?
-    func getFullImageData(completion: @escaping (Result<Data, Error>) -> Void) {
+    public func getFullImageData(completion: @escaping (Result<Data, Failure>) -> Void) {
         guard let resource = PHAssetResource.assetResources(for: phAsset).first else {
             return completion(.failure(Failure.noResources))
         }
         var data: [Data] = []
         PHAssetResourceManager.default().requestData(for: resource, options: nil, dataReceivedHandler: { data.append($0) }) { error in
             guard !data.isEmpty else {
-                return completion(.failure(error ?? Failure.unknownError))
+                return completion(.failure(.init(photoKitError: error)))
             }
             return completion(.success(data.reduce(Data(), +)))
         }
@@ -125,9 +160,9 @@ public extension Asset {
     // it uploads, but I personally have no idea how that could be done
     //
     // Maybe make a silenceable warning with some kind of override function?
-    func getFullImageDataProgressively(completion: @escaping (Result<Data, Error>) -> Void) {
+    public func getFullImageDataProgressively(completion: @escaping (Result<Data, Failure>) -> Void) {
         guard let resource = PHAssetResource.assetResources(for: phAsset).first else {
-            return completion(.failure(Failure.noResources))
+            return completion(.failure(.noResources))
         }
         var data = Data()
         PHAssetResourceManager.default().requestData(for: resource, options: nil) {
@@ -135,62 +170,39 @@ public extension Asset {
             completion(.success(data))
         } completionHandler: { error in
             if let error {
-                completion(.failure(error))
+                completion(.failure(.photoKit(error)))
             }
         }
     }
     
-    enum Failure: Error {
+    public enum Failure: Error {
         case noResources
+        case photoKit(Error)
         case unknownError
-    }
-    
-    // MARK: Favorites
-    
-    var isFavorite: Bool {
-        get {
-            phAsset.isFavorite
-        }
-        set {
-            editFavoriteState(isFavorite: newValue)
-        }
-    }
-    
-    func editFavoriteState(isFavorite: Bool, completion: ((Result<Void, Error>) -> Void)? = nil) {
-        guard isFavorite != phAsset.isFavorite else { return completion?(.success(())) ?? () }
         
-        PHPhotoLibrary.shared().performChanges {
-            PHAssetChangeRequest(for: phAsset).isFavorite = isFavorite
-        } completionHandler: { success, error in
-            if success {
-                completion?(.success(()))
-            } else {
-                completion?(.failure(error ?? Failure.unknownError))
+        init(photoKitError: Error?) {
+            switch photoKitError {
+            case .some(let error):
+                self = .photoKit(error)
+            case .none:
+                self = .unknownError
             }
         }
     }
-    
-    func favorite(completion: ((Result<Void, Error>) -> Void)? = nil) {
-        editFavoriteState(isFavorite: true, completion: completion)
+}
+
+// MARK: - Static
+
+extension StaticAsset {
+    // TODO: Options
+    public static func fetchAssets() -> PHFetchResults<StaticAsset> {
+        .init(PHAsset.fetchAssets(with: nil))
     }
     
-    func unfavorite(completion: ((Result<Void, Error>) -> Void)? = nil) {
-        editFavoriteState(isFavorite: false, completion: completion)
-    }
-    
-    func editFavoriteState(isFavorite: Bool) async throws {
-        guard isFavorite != phAsset.isFavorite else { return }
-        
-        try await PHPhotoLibrary.shared().performChanges {
-            PHAssetChangeRequest(for: phAsset).isFavorite = isFavorite
-        }
-    }
-    
-    func favorite() async throws {
-        try await editFavoriteState(isFavorite: true)
-    }
-    
-    func unfavorite() async throws {
-        try await editFavoriteState(isFavorite: false)
+    public static func getAssets() -> [StaticAsset] {
+        PHAsset
+            .fetchAssets(with: nil)
+            .allObjects()
+            .map(StaticAsset.init)
     }
 }
